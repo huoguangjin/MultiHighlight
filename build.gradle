@@ -1,0 +1,29 @@
+buildscript {
+    repositories {
+        maven { url 'http://dl.bintray.com/jetbrains/intellij-plugin-service' }
+        mavenCentral()
+    }
+}
+
+plugins {
+    id "org.jetbrains.intellij" version "0.2.0"
+}
+
+apply {
+    'java'
+    'org.jetbrains.intellij'
+}
+
+intellij {
+    version 'IC-2016.2'
+    pluginName 'MultiHighlight'
+    updateSinceUntilBuild false
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile "junit:junit:4.12"
+}

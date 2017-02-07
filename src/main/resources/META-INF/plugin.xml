@@ -1,0 +1,36 @@
+<idea-plugin url="https://github.com/huoguangjin" version="1">
+    <id>MultiHighlight</id>
+    <name>MultiHighlight</name>
+    <version>0.0.1</version>
+    <vendor email="352886006@qq.com" url="https://github.com/huoguangjin">HuoGuangjin</vendor>
+    
+    <description><![CDATA[
+      A simple plugin for insert text template
+    ]]></description>
+    
+    <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+    </change-notes>
+    
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="141.0"/>
+    <category>Navigation</category>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+            serviceImplementation="top.rammer.multihighlight.config.MultiHighlightConfig"/>
+        <applicationConfigurable instance="top.rammer.multihighlight.ui.MultiHighlightConfigPanel"/>
+    </extensions>
+    
+    <actions>
+        <action class="top.rammer.multihighlight.action.MultiHighlightAction" id="MultiHighlight"
+            text="MultiHighlight"
+            description="MultiHighlight Usage">
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta U"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta U"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl U"/>
+        </action>
+    </actions>
+</idea-plugin>

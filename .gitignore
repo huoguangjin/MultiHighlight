@@ -1,0 +1,17 @@
+# Intellij
+.idea/
+*.iml
+
+# Production
+build/
+*.class
+
+# Gradle
+.gradle/
+gradle.properties
+
+# System Cache
+.DS_Store
+thumbs.db
+$RECYCLE.BIN/
+src/test/
