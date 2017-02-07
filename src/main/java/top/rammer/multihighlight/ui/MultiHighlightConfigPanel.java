@@ -8,26 +8,21 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBSplitter;
-import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.ToolbarDecorator;
-import com.intellij.ui.components.JBList;
+import com.intellij.ui.table.TableView;
+import com.intellij.util.ui.ListTableModel;
 
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 
 import top.rammer.multihighlight.config.MultiHighlightConfig;
 import top.rammer.multihighlight.config.NamedTextAttr;
@@ -46,29 +41,19 @@ public class MultiHighlightConfigPanel extends JPanel
 
     private final PreviewPanel previewPanel;
 
-    private final JBList namedTextAttrList;
-    private final MutableCollectionComboBoxModel<NamedTextAttr> model;
+    private final TableView<NamedTextAttr> namedTextAttrList;
+    private final ListTableModel<NamedTextAttr> model;
 
     public MultiHighlightConfigPanel() {
         super(new BorderLayout(0, 10));
 
         /*------------------------------ view ------------------------------*/
 
-        final List<NamedTextAttr> namedTextAttrs = cloneFromStorage();
-        model = new MutableCollectionComboBoxModel<>(namedTextAttrs);
-
-        namedTextAttrList = new JBList(model);
+        model = new TextAttrListModel(cloneFromStorage());
+        namedTextAttrList = new TableView<>(model);
+        namedTextAttrList.setShowColumns(false);
+        namedTextAttrList.setStriped(true);
         namedTextAttrList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        namedTextAttrList.setCellRenderer(new DefaultListCellRenderer() {
-
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                    boolean isSelected, boolean cellHasFocus) {
-                final NamedTextAttr namedTextAttr = (NamedTextAttr) value;
-                return super.getListCellRendererComponent(list, namedTextAttr.getName(), index,
-                        isSelected, cellHasFocus);
-            }
-        });
 
         chooserPanel = new ColorChooserPanel();
         previewPanel = new ColorPreviewPanel();
@@ -85,39 +70,20 @@ public class MultiHighlightConfigPanel extends JPanel
         }.installOn(namedTextAttrList);
 
         chooserPanel.addListener(e -> {
-            final Object selectedValue = namedTextAttrList.getSelectedValue();
-            if (selectedValue != null) {
-                chooserPanel.apply(((NamedTextAttr) selectedValue).getTextAttributes());
+            final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
+            if (selected != null) {
+                chooserPanel.apply(selected.getTextAttributes());
                 updatePreviewPanel();
             }
         });
 
-        namedTextAttrList.addListSelectionListener(e -> {
+        namedTextAttrList.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 updateChooserPanel();
             }
         });
 
-        model.addListDataListener(new ListDataListener() {
-
-            @Override
-            public void intervalAdded(ListDataEvent e) {
-                System.out.println("MultiHighlightConfigPanel.intervalAdded: e = [" + e + "]");
-                updatePreviewPanel();
-            }
-
-            @Override
-            public void intervalRemoved(ListDataEvent e) {
-                System.out.println("MultiHighlightConfigPanel.intervalRemoved: e = [" + e + "]");
-                updatePreviewPanel();
-            }
-
-            @Override
-            public void contentsChanged(ListDataEvent e) {
-                System.out.println("MultiHighlightConfigPanel.contentsChanged: e = [" + e + "]");
-                updatePreviewPanel();
-            }
-        });
+        model.addTableModelListener(e -> updatePreviewPanel());
 
         /*------------------------------ layout ------------------------------*/
 
@@ -145,26 +111,26 @@ public class MultiHighlightConfigPanel extends JPanel
     private void doAdd() {
         final String name = EditNameDialog.edit(null);
         if (name != null) {
-            model.add(new NamedTextAttr(name, DEFAULT_TEXT_ATTRIBUTES.clone()));
-            namedTextAttrList.setSelectedIndex(model.getSize() - 1);
+            model.addRow(new NamedTextAttr(name, DEFAULT_TEXT_ATTRIBUTES.clone()));
         }
     }
 
     private void doEdit() {
-        final NamedTextAttr selected = model.getSelected();
+        final int selectedRow = namedTextAttrList.getSelectedRow();
+        final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
         if (selected != null) {
             final String name = EditNameDialog.edit(selected);
             if (name != null && !name.equals(selected.getName())) {
                 selected.setName(name);
-                model.update();
+                model.fireTableRowsUpdated(selectedRow, selectedRow);
             }
         }
     }
 
     private void updateChooserPanel() {
-        final Object selectedValue = namedTextAttrList.getSelectedValue();
-        if (selectedValue != null) {
-            chooserPanel.reset(((NamedTextAttr) selectedValue).getTextAttributes());
+        final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
+        if (selected != null) {
+            chooserPanel.reset(selected.getTextAttributes());
         } else {
             chooserPanel.resetDefault();
         }
@@ -220,7 +186,7 @@ public class MultiHighlightConfigPanel extends JPanel
 
     @Override
     public void reset() {
-        model.update(cloneFromStorage());
+        model.setItems(cloneFromStorage());
     }
 
     @Override
