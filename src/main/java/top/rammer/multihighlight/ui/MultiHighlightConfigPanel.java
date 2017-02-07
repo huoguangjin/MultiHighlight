@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.MutableCollectionComboBoxModel;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +26,8 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 
 import top.rammer.multihighlight.config.MultiHighlightConfig;
 import top.rammer.multihighlight.config.NamedTextAttr;
@@ -71,6 +75,15 @@ public class MultiHighlightConfigPanel extends JPanel
 
         /*------------------------------ listener ------------------------------*/
 
+        new DoubleClickListener() {
+
+            @Override
+            protected boolean onDoubleClick(MouseEvent event) {
+                doEdit();
+                return true;
+            }
+        }.installOn(namedTextAttrList);
+
         chooserPanel.addListener(e -> {
             final Object selectedValue = namedTextAttrList.getSelectedValue();
             if (selectedValue != null) {
@@ -85,22 +98,32 @@ public class MultiHighlightConfigPanel extends JPanel
             }
         });
 
+        model.addListDataListener(new ListDataListener() {
+
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                System.out.println("MultiHighlightConfigPanel.intervalAdded: e = [" + e + "]");
+                updatePreviewPanel();
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                System.out.println("MultiHighlightConfigPanel.intervalRemoved: e = [" + e + "]");
+                updatePreviewPanel();
+            }
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {
+                System.out.println("MultiHighlightConfigPanel.contentsChanged: e = [" + e + "]");
+                updatePreviewPanel();
+            }
+        });
+
         /*------------------------------ layout ------------------------------*/
 
-        final JPanel leftPanel = ToolbarDecorator.createDecorator(namedTextAttrList) // wrap
-                .setAddAction(button -> {
-                    model.add(new NamedTextAttr("default name", DEFAULT_TEXT_ATTRIBUTES.clone()));
-                    namedTextAttrList.setSelectedIndex(model.getSize() - 1);
-                    updatePreviewPanel();
-                })
-                .setRemoveAction(button -> {
-                    final int selectedIndex = namedTextAttrList.getSelectedIndex();
-                    model.remove(selectedIndex);
-                    namedTextAttrList.setSelectedIndex(selectedIndex - 1);
-                    updatePreviewPanel();
-                })
-                .setMoveUpAction(button -> updatePreviewPanel())
-                .setMoveDownAction(button -> updatePreviewPanel())
+        final JPanel leftPanel = ToolbarDecorator.createDecorator(namedTextAttrList)
+                .setAddAction(button -> doAdd())
+                .setEditAction(button -> doEdit())
                 .createPanel();
 
         final JBSplitter rightPanel = new JBSplitter(true, 0.3f);
@@ -117,6 +140,25 @@ public class MultiHighlightConfigPanel extends JPanel
 
         updateChooserPanel();
         updatePreviewPanel();
+    }
+
+    private void doAdd() {
+        final String name = EditNameDialog.edit(null);
+        if (name != null) {
+            model.add(new NamedTextAttr(name, DEFAULT_TEXT_ATTRIBUTES.clone()));
+            namedTextAttrList.setSelectedIndex(model.getSize() - 1);
+        }
+    }
+
+    private void doEdit() {
+        final NamedTextAttr selected = model.getSelected();
+        if (selected != null) {
+            final String name = EditNameDialog.edit(selected);
+            if (name != null && !name.equals(selected.getName())) {
+                selected.setName(name);
+                model.update();
+            }
+        }
     }
 
     private void updateChooserPanel() {
