@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBSplitter;
@@ -109,7 +110,7 @@ public class MultiHighlightConfigPanel extends JPanel
     }
 
     private void doAdd() {
-        final String name = EditNameDialog.edit(null);
+        final String name = askForColorName(null);
         if (name != null) {
             model.addRow(new NamedTextAttr(name, DEFAULT_TEXT_ATTRIBUTES.clone()));
         }
@@ -119,12 +120,18 @@ public class MultiHighlightConfigPanel extends JPanel
         final int selectedRow = namedTextAttrList.getSelectedRow();
         final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
         if (selected != null) {
-            final String name = EditNameDialog.edit(selected);
+            final String name = askForColorName(selected);
             if (name != null && !name.equals(selected.getName())) {
                 selected.setName(name);
                 model.fireTableRowsUpdated(selectedRow, selectedRow);
             }
         }
+    }
+
+    @Nullable
+    private String askForColorName(@Nullable NamedTextAttr attr) {
+        final String name = attr != null ? attr.getName() : "default name";
+        return Messages.showInputDialog("Color Name:", "Edit Color Name", null, name, null);
     }
 
     private void updateChooserPanel() {
