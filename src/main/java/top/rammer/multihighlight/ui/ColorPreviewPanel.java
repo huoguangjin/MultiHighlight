@@ -5,12 +5,14 @@ import com.intellij.codeInsight.daemon.impl.SeverityRegistrar;
 import com.intellij.codeInsight.daemon.impl.TrafficLightRenderer;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.ex.EditorMarkupModel;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.Disposer;
@@ -103,12 +105,12 @@ public class ColorPreviewPanel implements PreviewPanel {
 
             int size = namedTextAttrList.size();
             for (int i = 0; i < size; i++) {
-                highlightLine(i, namedTextAttrList.get(i).getTextAttributes());
+                highlightLine(i, namedTextAttrList.get(i));
             }
         });
     }
 
-    private void highlightLine(int index, TextAttributes ta) {
+    private void highlightLine(int index, NamedTextAttr namedTextAttr) {
         UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
             try {
                 MarkupModelEx markupModel = myEditor.getMarkupModel();
@@ -120,11 +122,16 @@ public class ColorPreviewPanel implements PreviewPanel {
 //                        markupModel.addRangeHighlighter(startOffset, endOffset,
 //                                HighlighterLayer.ADDITIONAL_SYNTAX, ta,
 //                                HighlighterTargetArea.EXACT_RANGE);
+                final TextAttributes ta = namedTextAttr.getTextAttributes();
+                final Document doc = markupModel.getDocument();
+                final int lineStartOffset = doc.getLineStartOffset(index);
+                final int lineEndOffset = doc.getLineEndOffset(index);
                 RangeHighlighter rangeHighlight =
-                        markupModel.addLineHighlighter(index, HighlighterLayer.ADDITIONAL_SYNTAX,
-                                ta);
+                        markupModel.addRangeHighlighter(lineStartOffset, lineEndOffset,
+                                HighlighterLayer.SELECTION - 1, ta,
+                                HighlighterTargetArea.EXACT_RANGE);
                 rangeHighlight.setErrorStripeMarkColor(ta.getErrorStripeColor());
-                rangeHighlight.setErrorStripeTooltip("color" + index);
+                rangeHighlight.setErrorStripeTooltip(namedTextAttr.getName());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
