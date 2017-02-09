@@ -1,5 +1,7 @@
 package top.rammer.multihighlight.config;
 
+import com.intellij.openapi.editor.colors.EditorColors;
+import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.markup.TextAttributes;
 
 import org.jdom.Attribute;
@@ -10,6 +12,14 @@ import org.jetbrains.annotations.NotNull;
  * Created by Rammer on 07/02/2017.
  */
 public class NamedTextAttr {
+
+    public static final TextAttributes IDE_DEFAULT_TEXT_ATTRIBUTE =
+            EditorColorsManager.getInstance()
+                    .getGlobalScheme()
+                    .getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES);
+
+    public static final NamedTextAttr IDE_DEFAULT =
+            new NamedTextAttr("IDE default", IDE_DEFAULT_TEXT_ATTRIBUTE);
 
     private static final String ATTR_NAME = "name";
 

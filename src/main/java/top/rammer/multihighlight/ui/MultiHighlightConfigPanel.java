@@ -1,8 +1,5 @@
 package top.rammer.multihighlight.ui;
 
-import com.intellij.openapi.editor.colors.EditorColors;
-import com.intellij.openapi.editor.colors.EditorColorsManager;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.Messages;
@@ -27,16 +24,13 @@ import javax.swing.ListSelectionModel;
 
 import top.rammer.multihighlight.config.MultiHighlightConfig;
 import top.rammer.multihighlight.config.NamedTextAttr;
+import top.rammer.multihighlight.highlight.TextAttributesFactory;
 
 /**
  * Created by Rammer on 06/02/2017.
  */
 public class MultiHighlightConfigPanel extends JPanel
         implements Configurable, Configurable.NoScroll {
-
-    private static final TextAttributes DEFAULT_TEXT_ATTRIBUTES = EditorColorsManager.getInstance()
-            .getGlobalScheme()
-            .getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES);
 
     private final ChooserPanel chooserPanel;
 
@@ -112,7 +106,7 @@ public class MultiHighlightConfigPanel extends JPanel
     private void doAdd() {
         final String name = askForColorName(null);
         if (name != null) {
-            model.addRow(new NamedTextAttr(name, DEFAULT_TEXT_ATTRIBUTES.clone()));
+            model.addRow(new NamedTextAttr(name, NamedTextAttr.IDE_DEFAULT_TEXT_ATTRIBUTE.clone()));
         }
     }
 
@@ -187,8 +181,7 @@ public class MultiHighlightConfigPanel extends JPanel
     @Override
     public void apply() throws ConfigurationException {
         MultiHighlightConfig.getInstance().setNamedTextAttrs(model.getItems());
-
-        // TODO: 07/02/2017 notify data set changed
+        TextAttributesFactory.getInstance().update();
     }
 
     @Override

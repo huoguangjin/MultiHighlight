@@ -1,6 +1,7 @@
 package top.rammer.multihighlight.highlight;
 
 import com.intellij.codeInsight.TargetElementUtil;
+import com.intellij.codeInsight.highlighting.HighlightHandlerBase;
 import com.intellij.codeInsight.highlighting.HighlightManager;
 import com.intellij.codeInsight.highlighting.HighlightManagerImpl;
 import com.intellij.codeInsight.highlighting.HighlightUsagesDescriptionLocation;
@@ -55,8 +56,7 @@ import java.util.Collections;
 import java.util.List;
 
 import top.rammer.multihighlight.Log;
-
-import static com.intellij.codeInsight.highlighting.HighlightHandlerBase.getLineTextErrorStripeTooltip;
+import top.rammer.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 06/02/2017.
@@ -227,8 +227,16 @@ public class MultiHighlightHandler {
         final List<TextRange> writeRanges = usages.second;
         
         final HighlightManager highlightManager = HighlightManager.getInstance(project);
-        
-        final TextAttributes ta = TextAttributesFactory.get();
+        if (shouldClear) {
+            clearHighlights(editor, highlightManager, readRanges);
+            clearHighlights(editor, highlightManager, writeRanges);
+            WindowManager.getInstance().getStatusBar(project).setInfo("");
+            return;
+        }
+
+        // TODO: 10/02/2017 pass target?
+        final NamedTextAttr namedTextAttr = TextAttributesFactory.getInstance().get();
+        final TextAttributes ta = namedTextAttr.getTextAttributes();
         final Color scrollMarkColor;
         if (ta.getErrorStripeColor() != null) {
             scrollMarkColor = ta.getErrorStripeColor();
@@ -240,27 +248,20 @@ public class MultiHighlightHandler {
         
         final String elementName = ElementDescriptionUtil.getElementDescription(target,
                 HighlightUsagesDescriptionLocation.INSTANCE);
-        if (shouldClear) {
-            clearHighlights(editor, highlightManager, readRanges, ta);
-            clearHighlights(editor, highlightManager, writeRanges, ta);
-            WindowManager.getInstance().getStatusBar(project).setInfo("");
-            return;
-        }
         
         // TODO: 06/02/2017 highlight write and read access
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
         highlight(highlightManager, readRanges, editor, ta, highlighters, scrollMarkColor);
         highlight(highlightManager, writeRanges, editor, ta, highlighters, scrollMarkColor);
-        
-        final Document document = editor.getDocument();
+
+        final Document doc = editor.getDocument();
         for (RangeHighlighter highlighter : highlighters) {
-            String tooltip =
-                    getLineTextErrorStripeTooltip(document, highlighter.getStartOffset(), true);
-            highlighter.setErrorStripeTooltip(tooltip);
+            final String desc = HighlightHandlerBase.getLineTextErrorStripeTooltip(doc,
+                    highlighter.getStartOffset(), true);
+            // TODO: 09/02/2017 save NamedTextAttr's name?
+            highlighter.setErrorStripeTooltip(MultiHighlightTooltip.create(target, desc));
         }
-        
-        // TODO: 06/02/2017 record highlighters
-        
+
         int refCount = readRanges.size() + writeRanges.size();
         String msg;
         if (refCount > 0) {
@@ -318,7 +319,7 @@ public class MultiHighlightHandler {
     }
     
     private static void clearHighlights(Editor editor, HighlightManager highlightManager,
-            List<TextRange> rangesToHighlight, TextAttributes attributes) {
+            List<TextRange> toRemoves) {
         if (editor instanceof EditorWindow) {
             editor = ((EditorWindow) editor).getDelegate();
         }
@@ -327,22 +328,24 @@ public class MultiHighlightHandler {
                 ((HighlightManagerImpl) highlightManager).getHighlighters(editor);
         
         Arrays.sort(highlighters, (o1, o2) -> o1.getStartOffset() - o2.getStartOffset());
-        Collections.sort(rangesToHighlight, (o1, o2) -> o1.getStartOffset() - o2.getStartOffset());
+        Collections.sort(toRemoves, (o1, o2) -> o1.getStartOffset() - o2.getStartOffset());
         
         int i = 0;
         int j = 0;
-        while (i < highlighters.length && j < rangesToHighlight.size()) {
+        while (i < highlighters.length && j < toRemoves.size()) {
             RangeHighlighter highlighter = highlighters[i];
-            TextRange highlighterRange = TextRange.create(highlighter);
-            TextRange refRange = rangesToHighlight.get(j);
-            if (refRange.equals(highlighterRange) && attributes.equals(
-                    highlighter.getTextAttributes()) &&
-                    highlighter.getLayer() == HighlighterLayer.SELECTION - 1) {
+            final Object tooltip = highlighter.getErrorStripeTooltip();
+
+            final TextRange textRange = TextRange.create(highlighter);
+            final TextRange toRemove = toRemoves.get(j);
+            if (tooltip != null && tooltip instanceof MultiHighlightTooltip // wrap
+                    && highlighter.getLayer() == HighlighterLayer.SELECTION - 1 // wrap
+                    && toRemove.equals(textRange)) {
                 highlightManager.removeSegmentHighlighter(editor, highlighter);
                 i++;
-            } else if (refRange.getStartOffset() > highlighterRange.getEndOffset()) {
+            } else if (toRemove.getStartOffset() > textRange.getEndOffset()) {
                 i++;
-            } else if (refRange.getEndOffset() < highlighterRange.getStartOffset()) {
+            } else if (toRemove.getEndOffset() < textRange.getStartOffset()) {
                 j++;
             } else {
                 i++;
