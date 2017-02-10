@@ -50,7 +50,7 @@ public class NamedTextAttr {
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
-    protected NamedTextAttr clone() throws CloneNotSupportedException {
+    public NamedTextAttr clone() {
         return new NamedTextAttr(name, textAttributes.clone());
     }
 

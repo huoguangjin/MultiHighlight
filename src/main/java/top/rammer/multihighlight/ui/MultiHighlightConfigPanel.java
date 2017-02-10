@@ -1,8 +1,12 @@
 package top.rammer.multihighlight.ui;
 
+import com.intellij.icons.AllIcons;
+import com.intellij.idea.ActionsBundle;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.AnActionButton;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.JBSplitter;
@@ -85,6 +89,14 @@ public class MultiHighlightConfigPanel extends JPanel
         final JPanel leftPanel = ToolbarDecorator.createDecorator(namedTextAttrList)
                 .setAddAction(button -> doAdd())
                 .setEditAction(button -> doEdit())
+                .addExtraActions((AnActionButton) new ToolbarDecorator.ElementActionButton(
+                        ActionsBundle.message("action.EditorCopy.text"), AllIcons.Actions.Copy) {
+
+                    @Override
+                    public void actionPerformed(AnActionEvent e) {
+                        doCopy();
+                    }
+                })
                 .createPanel();
 
         final JBSplitter rightPanel = new JBSplitter(true, 0.3f);
@@ -107,6 +119,8 @@ public class MultiHighlightConfigPanel extends JPanel
         final String name = askForColorName(null);
         if (name != null) {
             model.addRow(new NamedTextAttr(name, NamedTextAttr.IDE_DEFAULT_TEXT_ATTRIBUTE.clone()));
+            final int newRow = model.getRowCount() - 1;
+            namedTextAttrList.getSelectionModel().setSelectionInterval(newRow, newRow);
         }
     }
 
@@ -118,6 +132,18 @@ public class MultiHighlightConfigPanel extends JPanel
             if (name != null && !name.equals(selected.getName())) {
                 selected.setName(name);
                 model.fireTableRowsUpdated(selectedRow, selectedRow);
+            }
+        }
+    }
+
+    private void doCopy() {
+        final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
+        if (selected != null) {
+            final String name = askForColorName(null);
+            if (name != null) {
+                model.addRow(new NamedTextAttr(name, selected.getTextAttributes().clone()));
+                final int newRow = model.getRowCount() - 1;
+                namedTextAttrList.getSelectionModel().setSelectionInterval(newRow, newRow);
             }
         }
     }
@@ -156,6 +182,7 @@ public class MultiHighlightConfigPanel extends JPanel
     @Nullable
     @Override
     public JComponent createComponent() {
+        // FIXME: 10/02/2017 move create swing component code from constructor to here
         return this;
     }
 
