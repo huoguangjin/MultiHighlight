@@ -33,18 +33,19 @@ import top.rammer.multihighlight.highlight.TextAttributesFactory;
 /**
  * Created by Rammer on 06/02/2017.
  */
-public class MultiHighlightConfigPanel extends JPanel
-        implements Configurable, Configurable.NoScroll {
+public class MultiHighlightConfigPanel implements Configurable, Configurable.NoScroll {
 
-    private final ChooserPanel chooserPanel;
+    private JComponent myComponent;
 
-    private final PreviewPanel previewPanel;
+    private ChooserPanel chooserPanel;
 
-    private final TableView<NamedTextAttr> namedTextAttrList;
-    private final ListTableModel<NamedTextAttr> model;
+    private PreviewPanel previewPanel;
 
-    public MultiHighlightConfigPanel() {
-        super(new BorderLayout(0, 10));
+    private TableView<NamedTextAttr> namedTextAttrList;
+    private ListTableModel<NamedTextAttr> model;
+
+    private JComponent createPanel() {
+        final JPanel panel = new JPanel(new BorderLayout(0, 10));
 
         /*------------------------------ view ------------------------------*/
 
@@ -106,13 +107,15 @@ public class MultiHighlightConfigPanel extends JPanel
         final JBSplitter jbSplitter = new JBSplitter(false, 0.3f);
         jbSplitter.setFirstComponent(leftPanel);
         jbSplitter.setSecondComponent(rightPanel);
-        add(jbSplitter, BorderLayout.CENTER);
-        setBorder(IdeBorderFactory.createTitledBorder("MultiHighlight Colors", false));
+        panel.add(jbSplitter, BorderLayout.CENTER);
+        panel.setBorder(IdeBorderFactory.createTitledBorder("MultiHighlight Colors", false));
 
         /*------------------------------ init ------------------------------*/
 
         updateChooserPanel();
         updatePreviewPanel();
+
+        return panel;
     }
 
     private void doAdd() {
@@ -182,8 +185,11 @@ public class MultiHighlightConfigPanel extends JPanel
     @Nullable
     @Override
     public JComponent createComponent() {
-        // FIXME: 10/02/2017 move create swing component code from constructor to here
-        return this;
+        if (myComponent == null) {
+            myComponent = createPanel();
+        }
+
+        return myComponent;
     }
 
     @Override
