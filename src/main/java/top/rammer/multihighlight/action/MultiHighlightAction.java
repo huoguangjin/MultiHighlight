@@ -5,7 +5,6 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
@@ -13,7 +12,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
-import top.rammer.multihighlight.Log;
 import top.rammer.multihighlight.highlight.MultiHighlightHandler;
 
 /**
@@ -40,12 +38,6 @@ public class MultiHighlightAction extends DumbAwareAction {
         final PsiElement psiElement = e.getData(CommonDataKeys.PSI_ELEMENT);
 
         if (project == null || editor == null || psiFile == null || psiElement == null) {
-            return;
-        }
-
-        final SelectionModel selectionModel = editor.getSelectionModel();
-        if (selectionModel.hasSelection()) {
-            Log.info("actionPerformed: selectionModel.hasSelection()");
             return;
         }
 
