@@ -14,4 +14,3 @@ gradle.properties
 .DS_Store
 thumbs.db
 $RECYCLE.BIN/
-src/test/
