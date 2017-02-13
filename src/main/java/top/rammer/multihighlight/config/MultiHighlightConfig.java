@@ -14,7 +14,9 @@ import java.util.List;
 /**
  * Created by Rammer on 06/02/2017.
  */
-@State(name = "MultiHighlight", storages = { @Storage("MultiHighlight.xml") })
+@State(name = "MultiHighlight", defaultStateAsResource = true, storages = {
+        @Storage("MultiHighlight.xml")
+})
 public class MultiHighlightConfig implements PersistentStateComponent<Element> {
 
     private static final String COLOR_LIST_TAG = "list";

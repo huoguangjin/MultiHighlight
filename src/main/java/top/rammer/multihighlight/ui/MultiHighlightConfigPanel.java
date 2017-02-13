@@ -213,8 +213,13 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
 
     @Override
     public void apply() throws ConfigurationException {
+        final int selectedRow = namedTextAttrList.getSelectedRow();
         MultiHighlightConfig.getInstance().setNamedTextAttrs(model.getItems());
         TextAttributesFactory.getInstance().update();
+        model.setItems(cloneFromStorage());
+        if (0 <= selectedRow && selectedRow < namedTextAttrList.getRowCount()) {
+            namedTextAttrList.setRowSelectionInterval(selectedRow, selectedRow);
+        }
     }
 
     @Override
@@ -230,7 +235,7 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
     private List<NamedTextAttr> cloneFromStorage() {
         final ArrayList<NamedTextAttr> clone = new ArrayList<>();
         for (NamedTextAttr attr : MultiHighlightConfig.getInstance().getNamedTextAttrs()) {
-            clone.add(attr);
+            clone.add(attr.clone());
         }
 
         return clone;
