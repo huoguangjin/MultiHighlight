@@ -114,18 +114,14 @@ public class ColorPreviewPanel implements PreviewPanel {
         UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
             try {
                 MarkupModelEx markupModel = myEditor.getMarkupModel();
-                // IDEA-53203: add ERASE_MARKER for manually defined attributes
-//                markupModel.addRangeHighlighter(startOffset, endOffset,
-//                        HighlighterLayer.ADDITIONAL_SYNTAX, TextAttributes.ERASE_MARKER,
-//                        HighlighterTargetArea.EXACT_RANGE);
-//                RangeHighlighter rangeHighlight =
-//                        markupModel.addRangeHighlighter(startOffset, endOffset,
-//                                HighlighterLayer.ADDITIONAL_SYNTAX, ta,
-//                                HighlighterTargetArea.EXACT_RANGE);
                 final TextAttributes ta = namedTextAttr.getTextAttributes();
                 final Document doc = markupModel.getDocument();
                 final int lineStartOffset = doc.getLineStartOffset(index);
                 final int lineEndOffset = doc.getLineEndOffset(index);
+                // IDEA-53203: add ERASE_MARKER for manually defined attributes
+                markupModel.addRangeHighlighter(lineStartOffset, lineEndOffset,
+                        HighlighterLayer.SELECTION - 1, TextAttributes.ERASE_MARKER,
+                        HighlighterTargetArea.EXACT_RANGE);
                 RangeHighlighter rangeHighlight =
                         markupModel.addRangeHighlighter(lineStartOffset, lineEndOffset,
                                 HighlighterLayer.SELECTION - 1, ta,
