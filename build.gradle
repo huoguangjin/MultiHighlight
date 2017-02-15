@@ -9,6 +9,8 @@ plugins {
     id "org.jetbrains.intellij" version "0.2.1"
 }
 
+def debugMode = System.properties['debugMode']
+
 apply {
     'java'
     'org.jetbrains.intellij'
@@ -19,7 +21,6 @@ intellij {
     pluginName 'MultiHighlight'
     updateSinceUntilBuild false
 
-    def debugMode = System.properties['debugMode']
     if (debugMode) {
         systemProperty "MultiHighlight.debug", true
     }
@@ -28,6 +29,17 @@ intellij {
 runIdea.doFirst {
     // https://github.com/JetBrains/gradle-intellij-plugin/issues/173
     runIdea.systemProperties += [:]
+}
+
+prepareSandbox.doLast {
+    copy {
+        from "$destinationDir/${getPluginName()}/lib"
+        into project.rootDir
+        include '**/*.jar'
+        if (debugMode) {
+            rename "\\.jar", "-debug.jar"
+        }
+    }
 }
 
 repositories {
