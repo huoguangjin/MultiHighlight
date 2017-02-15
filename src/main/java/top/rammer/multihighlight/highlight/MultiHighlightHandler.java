@@ -13,6 +13,7 @@ import com.intellij.find.EditorSearchSession;
 import com.intellij.find.FindManager;
 import com.intellij.find.findUsages.FindUsagesHandler;
 import com.intellij.find.findUsages.FindUsagesManager;
+import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.find.impl.FindManagerImpl;
 import com.intellij.injected.editor.EditorWindow;
 import com.intellij.navigation.NavigationItem;
@@ -122,8 +123,16 @@ public class MultiHighlightHandler {
             @NotNull PsiFile file) {
         UsageTarget[] usageTargets = UsageTargetUtil.findUsageTargets(editor, file);
         if (usageTargets != null) {
-            highlightUsageTarget(usageTargets, editor, file, isClearHighlights(editor));
-            Log.className("usageTargets != null", usageTargets);
+            for (UsageTarget target : usageTargets) {
+                if (target instanceof PsiElement2UsageTargetAdapter) {
+                    highlightPsiElement(project,
+                            ((PsiElement2UsageTargetAdapter) target).getElement(), editor, file,
+                            isClearHighlights(editor));
+                } else {
+                    Log.className("highlightUsageTarget usageTarget", target);
+                    target.highlightUsages(file, editor, isClearHighlights(editor));
+                }
+            }
         } else {
             final PsiElement psiElement = findTargetElement(editor, file);
             if (psiElement != null) {
@@ -192,18 +201,6 @@ public class MultiHighlightHandler {
         }
         
         return null;
-    }
-    
-    private static void highlightUsageTarget(@NotNull UsageTarget[] usageTargets,
-            @NotNull Editor editor, @NotNull PsiFile file, boolean shouldClear) {
-        if (usageTargets.length > 0) {
-            
-            Log.className("highlightUsageTarget usageTarget", usageTargets[0]);
-            
-            for (UsageTarget target : usageTargets) {
-                target.highlightUsages(file, editor, shouldClear);
-            }
-        }
     }
     
     private static void highlightPsiElement(@NotNull Project project,
