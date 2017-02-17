@@ -28,9 +28,9 @@
         <action class="top.rammer.multihighlight.action.MultiHighlightAction" id="MultiHighlight"
             text="MultiHighlight"
             description="MultiHighlight Usage">
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta U"/>
-            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta U"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl U"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta quote"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta quote"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl quote"/>
         </action>
     </actions>
 </idea-plugin>
