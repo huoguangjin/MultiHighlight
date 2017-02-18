@@ -27,7 +27,6 @@ public class TextAttributesFactory {
     }
 
     public void update() {
-        // TODO: 09/02/2017 MultiThread? -> volatile
         namedTextAttrs = MultiHighlightConfig.getInstance().getNamedTextAttrs();
     }
 
