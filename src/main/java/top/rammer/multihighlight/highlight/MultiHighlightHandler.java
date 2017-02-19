@@ -232,8 +232,7 @@ public class MultiHighlightHandler {
         }
 
         // TODO: 10/02/2017 pass target?
-        final NamedTextAttr namedTextAttr = TextAttributesFactory.getInstance().get();
-        final TextAttributes ta = namedTextAttr.getTextAttributes();
+        final TextAttributes ta = TextAttributesFactory.getInstance().get();
         final Color scrollMarkColor;
         if (ta.getErrorStripeColor() != null) {
             scrollMarkColor = ta.getErrorStripeColor();
@@ -255,7 +254,6 @@ public class MultiHighlightHandler {
         for (RangeHighlighter highlighter : highlighters) {
             final String desc = HighlightHandlerBase.getLineTextErrorStripeTooltip(doc,
                     highlighter.getStartOffset(), true);
-            // TODO: 09/02/2017 save NamedTextAttr's name?
             highlighter.setErrorStripeTooltip(MultiHighlightTooltip.create(target, desc));
         }
 
@@ -331,11 +329,10 @@ public class MultiHighlightHandler {
         int j = 0;
         while (i < highlighters.length && j < toRemoves.size()) {
             RangeHighlighter highlighter = highlighters[i];
-            final Object tooltip = highlighter.getErrorStripeTooltip();
-
+            final TextAttributes ta = highlighter.getTextAttributes();
             final TextRange textRange = TextRange.create(highlighter);
             final TextRange toRemove = toRemoves.get(j);
-            if (tooltip != null && tooltip instanceof MultiHighlightTooltip // wrap
+            if (ta != null && ta instanceof NamedTextAttr // wrap
                     && highlighter.getLayer() == HighlighterLayer.SELECTION - 1 // wrap
                     && toRemove.equals(textRange)) {
                 highlightManager.removeSegmentHighlighter(editor, highlighter);

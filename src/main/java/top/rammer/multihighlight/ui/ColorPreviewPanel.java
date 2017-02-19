@@ -114,7 +114,6 @@ public class ColorPreviewPanel implements PreviewPanel {
         UIUtil.invokeAndWaitIfNeeded((Runnable) () -> {
             try {
                 MarkupModelEx markupModel = myEditor.getMarkupModel();
-                final TextAttributes ta = namedTextAttr.getTextAttributes();
                 final Document doc = markupModel.getDocument();
                 final int lineStartOffset = doc.getLineStartOffset(index);
                 final int lineEndOffset = doc.getLineEndOffset(index);
@@ -124,9 +123,9 @@ public class ColorPreviewPanel implements PreviewPanel {
                         HighlighterTargetArea.EXACT_RANGE);
                 RangeHighlighter rangeHighlight =
                         markupModel.addRangeHighlighter(lineStartOffset, lineEndOffset,
-                                HighlighterLayer.SELECTION - 1, ta,
+                                HighlighterLayer.SELECTION - 1, namedTextAttr,
                                 HighlighterTargetArea.EXACT_RANGE);
-                rangeHighlight.setErrorStripeMarkColor(ta.getErrorStripeColor());
+                rangeHighlight.setErrorStripeMarkColor(namedTextAttr.getErrorStripeColor());
                 rangeHighlight.setErrorStripeTooltip(namedTextAttr.getName());
             } catch (Exception e) {
                 throw new RuntimeException(e);

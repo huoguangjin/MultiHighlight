@@ -72,7 +72,7 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
         chooserPanel.addListener(e -> {
             final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
             if (selected != null) {
-                chooserPanel.apply(selected.getTextAttributes());
+                chooserPanel.apply(selected);
                 updatePreviewPanel();
             }
         });
@@ -121,7 +121,7 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
     private void doAdd() {
         final String name = askForColorName(null);
         if (name != null) {
-            model.addRow(new NamedTextAttr(name, NamedTextAttr.IDE_DEFAULT_TEXT_ATTRIBUTE.clone()));
+            model.addRow(NamedTextAttr.IDE_DEFAULT.clone());
             final int newRow = model.getRowCount() - 1;
             namedTextAttrList.getSelectionModel().setSelectionInterval(newRow, newRow);
         }
@@ -144,7 +144,7 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
         if (selected != null) {
             final String name = askForColorName(null);
             if (name != null) {
-                model.addRow(new NamedTextAttr(name, selected.getTextAttributes().clone()));
+                model.addRow(new NamedTextAttr(name, selected));
                 final int newRow = model.getRowCount() - 1;
                 namedTextAttrList.getSelectionModel().setSelectionInterval(newRow, newRow);
             }
@@ -160,7 +160,7 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
     private void updateChooserPanel() {
         final NamedTextAttr selected = namedTextAttrList.getSelectedObject();
         if (selected != null) {
-            chooserPanel.reset(selected.getTextAttributes());
+            chooserPanel.reset(selected);
         } else {
             chooserPanel.resetDefault();
         }

@@ -11,27 +11,26 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Created by Rammer on 07/02/2017.
  */
-public class NamedTextAttr {
+public class NamedTextAttr extends TextAttributes {
 
-    public static final TextAttributes IDE_DEFAULT_TEXT_ATTRIBUTE =
+    public static final NamedTextAttr IDE_DEFAULT = new NamedTextAttr("IDE default",
             EditorColorsManager.getInstance()
                     .getGlobalScheme()
-                    .getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES);
-
-    public static final NamedTextAttr IDE_DEFAULT =
-            new NamedTextAttr("IDE default", IDE_DEFAULT_TEXT_ATTRIBUTE);
+                    .getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES));
 
     private static final String ATTR_NAME = "name";
 
     private String name;
-    private TextAttributes textAttributes;
 
-    public NamedTextAttr(@NotNull String name, @NotNull TextAttributes textAttributes) {
+    public NamedTextAttr(@NotNull String name, @NotNull TextAttributes ta) {
+        super(ta.getForegroundColor(), ta.getBackgroundColor(), ta.getEffectColor(),
+                ta.getEffectType(), ta.getFontType());
+        setErrorStripeColor(ta.getErrorStripeColor());
         this.name = name;
-        this.textAttributes = textAttributes;
     }
 
     public NamedTextAttr(@NotNull Element element) {
+        super(element);
         final Attribute attribute = element.getAttribute(ATTR_NAME);
         if (attribute != null) {
             name = attribute.getValue();
@@ -39,19 +38,17 @@ public class NamedTextAttr {
         if (name == null) {
             name = "";
         }
-
-        textAttributes = new TextAttributes(element);
     }
 
     public void writeExternal(Element element) {
+        super.writeExternal(element);
         element.setAttribute(ATTR_NAME, name);
-        textAttributes.writeExternal(element);
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
     public NamedTextAttr clone() {
-        return new NamedTextAttr(name, textAttributes.clone());
+        return new NamedTextAttr(name, this);
     }
 
     @Override
@@ -66,19 +63,19 @@ public class NamedTextAttr {
         NamedTextAttr that = (NamedTextAttr) o;
 
         // name and textAttributes both are not null
-        return name.equals(that.name) && textAttributes.equals(that.textAttributes);
+        return name.equals(that.name) && super.equals(that);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (textAttributes != null ? textAttributes.hashCode() : 0);
+        int result = super.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return "NamedTextAttr{" + name + " ta=" + textAttributes + '}';
+        return "NamedTextAttr{" + name + "=" + super.toString() + '}';
     }
 
     @NotNull
@@ -88,14 +85,5 @@ public class NamedTextAttr {
 
     public void setName(@NotNull String name) {
         this.name = name;
-    }
-
-    @NotNull
-    public TextAttributes getTextAttributes() {
-        return textAttributes;
-    }
-
-    public void setTextAttributes(@NotNull TextAttributes textAttributes) {
-        this.textAttributes = textAttributes;
     }
 }
