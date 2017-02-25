@@ -252,9 +252,9 @@ public class MultiHighlightHandler {
 
         final Document doc = editor.getDocument();
         for (RangeHighlighter highlighter : highlighters) {
-            final String desc = HighlightHandlerBase.getLineTextErrorStripeTooltip(doc,
-                    highlighter.getStartOffset(), true);
-            highlighter.setErrorStripeTooltip(MultiHighlightTooltip.create(target, desc));
+            highlighter.setErrorStripeTooltip(
+                    HighlightHandlerBase.getLineTextErrorStripeTooltip(doc,
+                            highlighter.getStartOffset(), true));
         }
 
         int refCount = readRanges.size() + writeRanges.size();
