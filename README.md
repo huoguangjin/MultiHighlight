@@ -1,6 +1,6 @@
 # MultiHighlight
 
-MultiHighlight lets you highlight identifiers with <b>custom colors</b> (like `Highlight Usages in File`), it's helpful when reading source code.
+[MultiHighlight](https://plugins.jetbrains.com/plugin/9511-multihighlight) lets you highlight identifiers with <b>custom colors</b> (like `Highlight Usages in File`), it's helpful when reading source code.
 
 Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> or <kbd>⌘</kbd>+<kbd>'</kbd>.
 
@@ -34,7 +34,7 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> or <kbd>⌘</kbd>+<kbd>'</kbd>.
 
 + To build MultiHighlight, clone and run `./gradlew buildPlugin`.
 
-+ To run IntelliJ IDEA with MultiHighlight installed, run ` ./gradlew runIdea`.
++ To run IntelliJ IDEA with MultiHighlight installed, run ` ./gradlew runIde`.
 
 ## Change Log
 
