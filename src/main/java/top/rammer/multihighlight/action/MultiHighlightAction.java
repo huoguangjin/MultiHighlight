@@ -9,7 +9,6 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 
 import top.rammer.multihighlight.highlight.MultiHighlightHandler;
@@ -18,35 +17,32 @@ import top.rammer.multihighlight.highlight.MultiHighlightHandler;
  * Created by Rammer on 06/02/2017.
  */
 public class MultiHighlightAction extends DumbAwareAction {
-
+    
     public MultiHighlightAction() {
         setInjectedContext(true);
     }
-
+    
     @Override
     public void update(AnActionEvent e) {
         final Presentation presentation = e.getPresentation();
-        presentation.setEnabled(e.getProject() != null
-                && CommonDataKeys.EDITOR.getData(e.getDataContext()) != null);
+        presentation.setEnabled(e.getProject() != null && e.getData(CommonDataKeys.EDITOR) != null
+                && e.getData(CommonDataKeys.PSI_FILE) != null
+                && e.getData(CommonDataKeys.PSI_ELEMENT) != null);
     }
-
+    
     @Override
     public void actionPerformed(AnActionEvent e) {
-        final Project project = e.getData(CommonDataKeys.PROJECT);
-        final Editor editor = e.getData(CommonDataKeys.EDITOR);
-        final PsiFile psiFile = e.getData(CommonDataKeys.PSI_FILE);
-        final PsiElement psiElement = e.getData(CommonDataKeys.PSI_ELEMENT);
-
-        if (project == null || editor == null || psiFile == null || psiElement == null) {
-            return;
-        }
-
+        final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
+        final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
+        final PsiFile psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE);
+        // final PsiElement element = e.getRequiredData(CommonDataKeys.PSI_ELEMENT);
+        
         CommandProcessor.getInstance().executeCommand(project, () -> {
             try {
                 MultiHighlightHandler.invoke(project, editor, psiFile);
             } catch (IndexNotReadyException ex) {
                 DumbService.getInstance(project)
-                        .showDumbModeNotification("This usage search requires indices "
+                        .showDumbModeNotification("MultiHighlight requires indices "
                                 + "and cannot be performed until they are built");
             }
         }, "MultiHighlight", null);
