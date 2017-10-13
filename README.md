@@ -24,10 +24,13 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 + change the default keyboard shortcut: **File > Settings > Keymap > search "MultiHighlight"**.
 
-+ If you like [IdeaVim](https://plugins.jetbrains.com/plugin/164), add following line to `~/.ideavimrc` and trigger MultiHighlight with <kbd>Ctrl</kbd>+<kbd>'</kbd>:
++ If you like [IdeaVim](https://plugins.jetbrains.com/plugin/164), add following line to `~/.ideavimrc` and trigger MultiHighlight:
 
     ```vim
-    map <c-'> :action MultiHighlight<CR>
+    " Press `'` to toggle highlight
+    map ' :action MultiHighlight<CR>
+    " Press `"` to clear all highlights in current editor
+    map " :action MultiHighlight.ClearAction<CR>
     ```
 
 ## Build & Run
@@ -39,3 +42,4 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 ## Change Log
 
 - 1.0.0 first release.
+- 1.0.1 one keystroke to clear all highlights in current editor.

@@ -1,10 +1,11 @@
 <idea-plugin url="https://github.com/huoguangjin/MultiHighlight" version="1">
     <id>MultiHighlight</id>
     <name>MultiHighlight</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <vendor email="352886006@qq.com" url="https://github.com/huoguangjin">HuoGuangjin</vendor>
-
-    <description><![CDATA[
+    
+    <description>
+        <![CDATA[
         <p>Highlight identifiers with <b>custom colors</b> (like "Highlight Usages in File").</p>
         <p>You can <b>customize</b> your highlight text style, it's helpful when reading source
             code.</p>
@@ -17,18 +18,22 @@
         <p><img
             src="https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/preview-setting.png"
             width="350" height="275" border="0" alt="nice screenshot"></p>
-        ]]></description>
-
-    <change-notes><![CDATA[
+        ]]>
+    </description>
+    
+    <change-notes>
+        <![CDATA[
         <ul>
             <li>1.0.0 first release</li>
+            <li>1.0.1 one keystroke to clear all highlights in current editor</li>
         </ul>
-        ]]></change-notes>
+        ]]>
+    </change-notes>
 
     <depends>com.intellij.modules.lang</depends>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="141.0"/>
+    <idea-version since-build="162.0"/>
     <category>Navigation</category>
 
     <extensions defaultExtensionNs="com.intellij">
