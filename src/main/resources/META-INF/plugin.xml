@@ -45,5 +45,10 @@
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta QUOTE"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl QUOTE"/>
         </action>
+        <action id="MultiHighlightClearAction"
+            class="top.rammer.multihighlight.action.MultiHighlightClearAction"
+            text="MultiHighlight: clear highlights in current editor"
+            description="MultiHighlight: clear highlights in current editor">
+        </action>
     </actions>
 </idea-plugin>
