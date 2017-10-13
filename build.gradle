@@ -6,7 +6,7 @@ buildscript {
 }
 
 plugins {
-    id "org.jetbrains.intellij" version "0.2.1"
+    id "org.jetbrains.intellij" version "0.2.17"
 }
 
 apply {
@@ -19,11 +19,6 @@ intellij {
     pluginName 'MultiHighlight'
     updateSinceUntilBuild false
     systemProperty "MultiHighlight.debug", true
-}
-
-runIdea.doFirst {
-    // https://github.com/JetBrains/gradle-intellij-plugin/issues/173
-    runIdea.systemProperties += [:]
 }
 
 repositories {
@@ -42,3 +37,6 @@ task buildAndCopyJar() {
         include '**/*.jar'
     }
 }
+
+group 'top.rammer'
+version '1.0.1'
