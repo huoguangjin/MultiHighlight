@@ -27,7 +27,7 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> or <kbd>⌘</kbd>+<kbd>'</kbd>.
 + If you like [IdeaVim](https://plugins.jetbrains.com/plugin/164), add following line to `~/.ideavimrc` and trigger MultiHighlight with <kbd>Ctrl</kbd>+<kbd>'</kbd>:
 
     ```vim
-    map <c-'> :action MultiHighlightAction<CR>
+    map <c-'> :action MultiHighlight<CR>
     ```
 
 ## Build & Run
