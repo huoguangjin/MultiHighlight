@@ -26,8 +26,7 @@ public class MultiHighlightAction extends DumbAwareAction {
     public void update(AnActionEvent e) {
         final Presentation presentation = e.getPresentation();
         presentation.setEnabled(e.getProject() != null && e.getData(CommonDataKeys.EDITOR) != null
-                && e.getData(CommonDataKeys.PSI_FILE) != null
-                && e.getData(CommonDataKeys.PSI_ELEMENT) != null);
+                && e.getData(CommonDataKeys.PSI_FILE) != null);
     }
     
     @Override
@@ -35,7 +34,6 @@ public class MultiHighlightAction extends DumbAwareAction {
         final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
         final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
         final PsiFile psiFile = e.getRequiredData(CommonDataKeys.PSI_FILE);
-        // final PsiElement element = e.getRequiredData(CommonDataKeys.PSI_ELEMENT);
         
         CommandProcessor.getInstance().executeCommand(project, () -> {
             try {
