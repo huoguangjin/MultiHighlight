@@ -6,8 +6,8 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 ## Screenshots
 
-![screenshoot-clion](https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/screen-default.png)
-![screenshoot-studio](https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/screen-darcula.png)
+![screenshoot-clion](screenshot/screen-default.png)
+![screenshoot-studio](screenshot/screen-darcula.png)
 
 ## Install
 
@@ -18,11 +18,13 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 + You can customize your highlight text style (bold/italic, foreground, background, stripe and effect style) in setting page.
 
-    > Tips: Here is [material design color palette](https://github.com/huoguangjin/MultiHighlight/blob/master/palette.json), they are bright and vibrant colors. ([what is material design?](https://material.io/guidelines/style/color.html))
+    > Tips: Here is [material design color palette](palette.json), they are bright and vibrant colors. ([what is material design?](https://material.io/guidelines/style/color.html))
 
-    ![screenshoot-default](https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/setting-default.png)
+    ![setting](screenshot/setting-default.png)
 
 + change the default keyboard shortcut: **File > Settings > Keymap > search "MultiHighlight"**.
+
+    ![keymap](screenshot/keymap.png)
 
 + If you like [IdeaVim](https://plugins.jetbrains.com/plugin/164), add following line to `~/.ideavimrc` and trigger MultiHighlight:
 
