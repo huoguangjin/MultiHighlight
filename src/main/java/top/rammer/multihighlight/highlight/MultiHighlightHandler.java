@@ -45,6 +45,7 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.usages.UsageTarget;
 import com.intellij.usages.UsageTargetUtil;
 
+import com.jcraft.jsch.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,6 +56,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import top.rammer.multihighlight.Log;
 import top.rammer.multihighlight.config.NamedTextAttr;
@@ -75,11 +78,16 @@ public class MultiHighlightHandler {
         PsiDocumentManager.getInstance(project).commitAllDocuments();
         
         if (handleCustomUsage(editor, file)) {
+            Log.info("find custom usage done");
             return;
         }
-        
+
+        Log.info("now find target by myself");
+
         DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {
+            Log.info("now try to find target");
             if (!findTarget(project, editor, file)) {
+                Log.info("now find no usage target");
                 handleNoUsageTargets(file, editor, project);
             }
         });
@@ -231,7 +239,6 @@ public class MultiHighlightHandler {
             return;
         }
 
-        // TODO: 10/02/2017 pass target?
         final TextAttributes ta = TextAttributesFactory.getInstance().get();
         final Color scrollMarkColor;
         if (ta.getErrorStripeColor() != null) {
@@ -368,19 +375,32 @@ public class MultiHighlightHandler {
             return;
         }
         final SelectionModel selectionModel = editor.getSelectionModel();
-        selectionModel.selectWordAtCaret(false);
-        String selection = selectionModel.getSelectedText();
-//        LOG.assertTrue(selection != null);
-        if (selection != null) {
-            for (int i = 0; i < selection.length(); i++) {
-                if (!Character.isJavaIdentifierPart(selection.charAt(i))) {
-                    selectionModel.removeSelection();
-                }
-            }
-            
-            searchSelection(editor, project);
-            selectionModel.removeSelection();
+        if (!selectionModel.hasSelection()) {
+            selectionModel.selectWordAtCaret(false);
         }
+
+        final String text = selectionModel.getSelectedText();
+        selectionModel.removeSelection();
+        Matcher m = Pattern.compile("\\b" + text + "\\b").matcher(file.getText());
+        List<TextRange> writeRanges = new ArrayList<>();
+        while(m.find())
+        {
+            writeRanges.add(new TextRange(m.start(),m.end()));
+        }
+        final HighlightManager highlightManager = HighlightManager.getInstance(project);
+        ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
+        final TextAttributes ta = TextAttributesFactory.getInstance().get();
+        final Color scrollMarkColor;
+        if (ta.getErrorStripeColor() != null) {
+            scrollMarkColor = ta.getErrorStripeColor();
+        } else if (ta.getBackgroundColor() != null) {
+            scrollMarkColor = ta.getBackgroundColor().darker();
+        } else {
+            scrollMarkColor = null;
+        }
+        highlight(highlightManager, writeRanges, editor, ta, highlighters, scrollMarkColor);
+
+        return;
     }
     
     private static void searchSelection(Editor editor, Project project) {
@@ -390,6 +410,7 @@ public class MultiHighlightHandler {
         }
         
         final String text = selectionModel.getSelectedText();
+        Log.info("text is:" + text);
         if (text == null) {
             return;
         }
@@ -409,11 +430,14 @@ public class MultiHighlightHandler {
                 }
                 
                 String newText = oldText + '|' + StringUtil.escapeToRegexp(text);
+                Log.info("newText:"+newText);
                 oldSearch.setTextInField(newText);
                 return;
             }
         }
         
         EditorSearchSession.start(editor, project).getFindModel().setRegularExpressions(false);
+        Log.info("search started");
+
     }
 }
