@@ -45,7 +45,6 @@ import com.intellij.psi.search.searches.ReferencesSearch;
 import com.intellij.usages.UsageTarget;
 import com.intellij.usages.UsageTargetUtil;
 
-import com.jcraft.jsch.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
