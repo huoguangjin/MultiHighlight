@@ -364,9 +364,6 @@ public class MultiHighlightHandler {
      */
     private static void handleNoUsageTargets(PsiFile file, @NotNull Editor editor,
             @NotNull Project project) {
-        if (file.findElementAt(editor.getCaretModel().getOffset()) instanceof PsiWhiteSpace) {
-            return;
-        }
         final SelectionModel selectionModel = editor.getSelectionModel();
         if (!selectionModel.hasSelection()) {
             selectionModel.selectWordAtCaret(false);
