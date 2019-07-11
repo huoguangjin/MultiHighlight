@@ -78,16 +78,11 @@ public class MultiHighlightHandler {
         PsiDocumentManager.getInstance(project).commitAllDocuments();
         
         if (handleCustomUsage(editor, file)) {
-            Log.info("find custom usage done");
             return;
         }
 
-        Log.info("now find target by myself");
-
         DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {
-            Log.info("now try to find target");
             if (!findTarget(project, editor, file)) {
-                Log.info("now find no usage target");
                 handleNoUsageTargets(file, editor, project);
             }
         });
@@ -239,23 +234,13 @@ public class MultiHighlightHandler {
             return;
         }
 
-        final TextAttributes ta = TextAttributesFactory.getInstance().get();
-        final Color scrollMarkColor;
-        if (ta.getErrorStripeColor() != null) {
-            scrollMarkColor = ta.getErrorStripeColor();
-        } else if (ta.getBackgroundColor() != null) {
-            scrollMarkColor = ta.getBackgroundColor().darker();
-        } else {
-            scrollMarkColor = null;
-        }
-        
         final String elementName = ElementDescriptionUtil.getElementDescription(target,
                 HighlightUsagesDescriptionLocation.INSTANCE);
         
         // TODO: 06/02/2017 highlight write and read access
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
-        highlight(highlightManager, readRanges, editor, ta, highlighters, scrollMarkColor);
-        highlight(highlightManager, writeRanges, editor, ta, highlighters, scrollMarkColor);
+        highlight(highlightManager, readRanges, editor, highlighters);
+        highlight(highlightManager, writeRanges, editor,highlighters);
 
         final Document doc = editor.getDocument();
         for (RangeHighlighter highlighter : highlighters) {
@@ -357,8 +342,17 @@ public class MultiHighlightHandler {
     
     private static void highlight(@NotNull HighlightManager highlightManager,
             @NotNull Collection<TextRange> textRanges, @NotNull Editor editor,
-            @NotNull TextAttributes ta, @Nullable Collection<RangeHighlighter> holder,
-            @Nullable Color scrollMarkColor) {
+            @Nullable Collection<RangeHighlighter> holder
+            ) {
+        final TextAttributes ta = TextAttributesFactory.getInstance().get();
+        final Color scrollMarkColor;
+        if (ta.getErrorStripeColor() != null) {
+            scrollMarkColor = ta.getErrorStripeColor();
+        } else if (ta.getBackgroundColor() != null) {
+            scrollMarkColor = ta.getBackgroundColor().darker();
+        } else {
+            scrollMarkColor = null;
+        }
         for (TextRange range : textRanges) {
             highlightManager.addOccurrenceHighlight(editor, range.getStartOffset(),
                     range.getEndOffset(), ta, 0, holder, scrollMarkColor);
@@ -388,56 +382,14 @@ public class MultiHighlightHandler {
             writeRanges.add(new TextRange(m.start(),m.end()));
         }
         final HighlightManager highlightManager = HighlightManager.getInstance(project);
-        ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
-        final TextAttributes ta = TextAttributesFactory.getInstance().get();
-        final Color scrollMarkColor;
-        if (ta.getErrorStripeColor() != null) {
-            scrollMarkColor = ta.getErrorStripeColor();
-        } else if (ta.getBackgroundColor() != null) {
-            scrollMarkColor = ta.getBackgroundColor().darker();
-        } else {
-            scrollMarkColor = null;
-        }
-        highlight(highlightManager, writeRanges, editor, ta, highlighters, scrollMarkColor);
-
-        return;
-    }
-    
-    private static void searchSelection(Editor editor, Project project) {
-        final SelectionModel selectionModel = editor.getSelectionModel();
-        if (!selectionModel.hasSelection()) {
-            selectionModel.selectWordAtCaret(false);
-        }
-        
-        final String text = selectionModel.getSelectedText();
-        Log.info("text is:" + text);
-        if (text == null) {
+        if (isClearHighlights(editor)) {
+            clearHighlights(editor, highlightManager, writeRanges);
+            WindowManager.getInstance().getStatusBar(project).setInfo("");
             return;
         }
-        
-        if (editor instanceof EditorWindow) {
-            // highlightUsages selection in the whole editor, not injected fragment only
-            editor = ((EditorWindow) editor).getDelegate();
-        }
-        
-        EditorSearchSession oldSearch = EditorSearchSession.get(editor);
-        if (oldSearch != null) {
-            if (oldSearch.hasMatches()) {
-                String oldText = oldSearch.getTextInField();
-                if (!oldSearch.getFindModel().isRegularExpressions()) {
-                    oldText = StringUtil.escapeToRegexp(oldText);
-                    oldSearch.getFindModel().setRegularExpressions(true);
-                }
-                
-                String newText = oldText + '|' + StringUtil.escapeToRegexp(text);
-                Log.info("newText:"+newText);
-                oldSearch.setTextInField(newText);
-                return;
-            }
-        }
-        
-        EditorSearchSession.start(editor, project).getFindModel().setRegularExpressions(false);
-        Log.info("search started");
+        ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
+        highlight(highlightManager, writeRanges, editor, highlighters);
 
+        return;
     }
 }
