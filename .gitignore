@@ -4,7 +4,9 @@
 
 # Production
 build/
+out/
 *.class
+MultiHighlight-*.jar
 
 # Gradle
 .gradle/
