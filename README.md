@@ -6,8 +6,8 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 ## Screenshots
 
-![screenshoot-clion](screenshot/screen-default.png)
-![screenshoot-studio](screenshot/screen-darcula.png)
+![screenshot-clion](screenshot/screen-default.png)
+![screenshot-studio](screenshot/screen-darcula.png)
 
 ## Install
 
