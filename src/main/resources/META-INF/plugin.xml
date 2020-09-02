@@ -1,9 +1,9 @@
-<idea-plugin url="https://github.com/huoguangjin/MultiHighlight" version="1">
+<idea-plugin url="https://github.com/huoguangjin/MultiHighlight">
     <id>MultiHighlight</id>
     <name>MultiHighlight</name>
     <version>1.0.1</version>
     <vendor email="352886006@qq.com" url="https://github.com/huoguangjin">HuoGuangjin</vendor>
-    
+
     <description>
         <![CDATA[
         <p>Highlight identifiers with <b>custom colors</b> (like "Highlight Usages in File").</p>
@@ -33,7 +33,7 @@
     <depends>com.intellij.modules.lang</depends>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="162.0"/>
+    <idea-version since-build="202.2"/>
     <category>Navigation</category>
 
     <extensions defaultExtensionNs="com.intellij">
