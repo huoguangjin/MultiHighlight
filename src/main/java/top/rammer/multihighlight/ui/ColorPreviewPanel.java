@@ -1,9 +1,5 @@
 package top.rammer.multihighlight.ui;
 
-import com.intellij.application.options.colors.FontEditorPreview;
-import com.intellij.codeInsight.daemon.impl.SeverityRegistrar;
-import com.intellij.codeInsight.daemon.impl.TrafficLightRenderer;
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
@@ -15,7 +11,6 @@ import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.util.ui.UIUtil;
 
 import org.jetbrains.annotations.NotNull;
@@ -48,27 +43,7 @@ public class ColorPreviewPanel implements PreviewPanel {
         settings.setRightMarginShown(true);
         settings.setRightMargin(60);
 
-        /** {@link FontEditorPreview#installTrafficLights(EditorEx)} */
-        TrafficLightRenderer renderer = new TrafficLightRenderer(null, null, null) {
-
-            private final DaemonCodeAnalyzerStatus status = new DaemonCodeAnalyzerStatus();
-
-            {
-                status.errorAnalyzingFinished = true;
-                status.errorCount = new int[]{ 0 };
-            }
-
-            @NotNull
-            @Override
-            protected DaemonCodeAnalyzerStatus getDaemonCodeAnalyzerStatus(
-                    @NotNull SeverityRegistrar severityRegistrar) {
-                return status;
-            }
-        };
-
-        Disposer.register((Disposable) myEditor.getCaretModel(), renderer);
         EditorMarkupModel markupModel = (EditorMarkupModel) myEditor.getMarkupModel();
-        markupModel.setErrorStripeRenderer(renderer);
         markupModel.setErrorStripeVisible(true);
     }
 
