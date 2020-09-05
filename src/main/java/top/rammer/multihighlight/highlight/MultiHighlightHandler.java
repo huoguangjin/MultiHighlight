@@ -1,21 +1,23 @@
 package top.rammer.multihighlight.highlight;
 
 import com.intellij.codeInsight.TargetElementUtil;
+import com.intellij.codeInsight.daemon.impl.IdentifierHighlighterPass;
 import com.intellij.codeInsight.highlighting.HighlightHandlerBase;
 import com.intellij.codeInsight.highlighting.HighlightManager;
 import com.intellij.codeInsight.highlighting.HighlightManagerImpl;
-import com.intellij.codeInsight.highlighting.HighlightUsagesDescriptionLocation;
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler;
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase;
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector;
 import com.intellij.featureStatistics.FeatureUsageTracker;
-import com.intellij.find.EditorSearchSession;
 import com.intellij.find.FindManager;
 import com.intellij.find.findUsages.FindUsagesHandler;
 import com.intellij.find.findUsages.FindUsagesManager;
 import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.find.impl.FindManagerImpl;
 import com.intellij.injected.editor.EditorWindow;
+import com.intellij.lang.injection.InjectedLanguageManager;
+import com.intellij.model.Symbol;
+import com.intellij.model.psi.impl.TargetsKt;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -28,16 +30,13 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.wm.WindowManager;
-import com.intellij.psi.ElementDescriptionUtil;
 import com.intellij.psi.PsiCompiledFile;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiPolyVariantReference;
 import com.intellij.psi.PsiReference;
-import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.ResolveResult;
 import com.intellij.psi.SmartPointerManager;
 import com.intellij.psi.search.LocalSearchScope;
@@ -65,36 +64,64 @@ import top.rammer.multihighlight.config.NamedTextAttr;
  * Created by Rammer on 06/02/2017.
  */
 public class MultiHighlightHandler {
-    
+
     /**
-     * {@link com.intellij.codeInsight.highlighting.HighlightUsagesHandler#invoke(Project, Editor,
-     * PsiFile)}
+     * {@link HighlightUsagesHandler#invoke(Project, Editor, PsiFile)}
      *
-     * {@link com.intellij.codeInsight.daemon.impl.IdentifierHighlighterPass#doCollectInformation(ProgressIndicator)}
+     * {@link IdentifierHighlighterPass#doCollectInformation(ProgressIndicator)}
      */
     public static void invoke(@NotNull Project project, @NotNull Editor editor,
             @NotNull PsiFile file) {
         PsiDocumentManager.getInstance(project).commitAllDocuments();
-        
+
         if (handleCustomUsage(editor, file)) {
             return;
         }
 
         DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {
-            if (!findTarget(project, editor, file)) {
+            if (!findSymbols(project, editor, file) && !findTarget(project, editor, file)) {
                 handleNoUsageTargets(file, editor, project);
             }
         });
     }
-    
+
+    private static boolean findSymbols(@NotNull Project project, @NotNull Editor editor,
+            @NotNull PsiFile file) {
+        final int offset = editor.getCaretModel().getOffset();
+        final Collection<Symbol> allTargets = TargetsKt.targetSymbols(file, offset);
+        if (allTargets.isEmpty()) {
+            return false;
+        }
+
+        if (editor instanceof EditorWindow) {
+            editor = ((EditorWindow) editor).getDelegate();
+        }
+
+        if (file instanceof PsiCompiledFile) {
+            file = ((PsiCompiledFile) file).getDecompiledPsiFile();
+        }
+
+        file = InjectedLanguageManager.getInstance(project).getTopLevelFile(file);
+
+        final boolean shouldClear = isClearHighlights(editor);
+        for (Symbol symbol : allTargets) {
+            final Couple<List<TextRange>> usages =
+                    IdentifierHighlighterPass.getUsages(file, symbol);
+
+            highlightUsages(project, editor, usages, shouldClear);
+        }
+
+        return true;
+    }
+
     private static boolean handleCustomUsage(@NotNull Editor editor, @NotNull PsiFile file) {
         final HighlightUsagesHandlerBase handler =
                 HighlightUsagesHandler.createCustomHandler(editor, file);
-        
+
         if (handler == null) {
             return false;
         }
-        
+
         final String featureId = handler.getFeatureId();
         if (featureId != null) {
             FeatureUsageTracker.getInstance().triggerFeatureUsed(featureId);
@@ -211,20 +238,25 @@ public class MultiHighlightHandler {
         final PsiElement target = SmartPointerManager.getInstance(psiElement.getProject())
                 .createSmartPsiElementPointer(psiElement)
                 .getElement();
-        
+
         if (target == null) {
             return;
         }
-        
+
         if (file instanceof PsiCompiledFile) {
             file = ((PsiCompiledFile) file).getDecompiledPsiFile();
         }
-        
+
         final Couple<List<TextRange>> usages = getUsages(target, file);
-        
+        highlightUsages(project, editor, usages, shouldClear);
+    }
+
+    private static void highlightUsages(@NotNull Project project, @NotNull Editor editor,
+            Couple<List<TextRange>> usages, boolean shouldClear) {
+
         final List<TextRange> readRanges = usages.first;
         final List<TextRange> writeRanges = usages.second;
-        
+
         final HighlightManager highlightManager = HighlightManager.getInstance(project);
         if (shouldClear) {
             clearHighlights(editor, highlightManager, readRanges);
@@ -233,9 +265,6 @@ public class MultiHighlightHandler {
             return;
         }
 
-        final String elementName = ElementDescriptionUtil.getElementDescription(target,
-                HighlightUsagesDescriptionLocation.INSTANCE);
-        
         // TODO: 06/02/2017 highlight write and read access
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
         highlight(highlightManager, readRanges, editor, highlighters);
@@ -251,12 +280,11 @@ public class MultiHighlightHandler {
         int refCount = readRanges.size() + writeRanges.size();
         String msg;
         if (refCount > 0) {
-            msg = MessageFormat.format("{0} {0, choice, 1#usage|2#usages} of {1} found", refCount,
-                    elementName);
+            msg = MessageFormat.format("{0} {0, choice, 1#usage|2#usages} highlighted", refCount);
         } else {
-            msg = MessageFormat.format("No usages of {0} found", elementName);
+            msg = "No usages highlighted";
         }
-        
+
         WindowManager.getInstance().getStatusBar(project).setInfo(msg);
     }
     
@@ -352,15 +380,15 @@ public class MultiHighlightHandler {
         } else {
             scrollMarkColor = null;
         }
+
         for (TextRange range : textRanges) {
             highlightManager.addOccurrenceHighlight(editor, range.getStartOffset(),
                     range.getEndOffset(), ta, 0, holder, scrollMarkColor);
         }
     }
-    
+
     /**
-     * {@link com.intellij.codeInsight.highlighting.HighlightUsagesHandler#handleNoUsageTargets(PsiFile,
-     * Editor, SelectionModel, Project)}
+     * {@link HighlightUsagesHandler#handleNoUsageTargets(PsiFile, Editor, SelectionModel, Project)}
      */
     private static void handleNoUsageTargets(PsiFile file, @NotNull Editor editor,
             @NotNull Project project) {
