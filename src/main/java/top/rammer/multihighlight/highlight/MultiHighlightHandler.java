@@ -267,8 +267,9 @@ public class MultiHighlightHandler {
 
         // TODO: 06/02/2017 highlight write and read access
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
-        highlight(highlightManager, readRanges, editor, highlighters);
-        highlight(highlightManager, writeRanges, editor, highlighters);
+        final TextAttributes ta = TextAttributesFactory.getInstance().get();
+        highlight(highlightManager, readRanges, editor, ta, highlighters);
+        highlight(highlightManager, writeRanges, editor, ta, highlighters);
 
         final Document doc = editor.getDocument();
         for (RangeHighlighter highlighter : highlighters) {
@@ -369,8 +370,7 @@ public class MultiHighlightHandler {
 
     private static void highlight(@NotNull HighlightManager highlightManager,
             @NotNull Collection<TextRange> textRanges, @NotNull Editor editor,
-            @Nullable Collection<RangeHighlighter> holder) {
-        final TextAttributes ta = TextAttributesFactory.getInstance().get();
+            @NotNull TextAttributes ta, @Nullable Collection<RangeHighlighter> holder) {
         final Color scrollMarkColor;
         if (ta.getErrorStripeColor() != null) {
             scrollMarkColor = ta.getErrorStripeColor();
@@ -413,6 +413,7 @@ public class MultiHighlightHandler {
         }
 
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
-        highlight(highlightManager, writeRanges, editor, highlighters);
+        final TextAttributes ta = TextAttributesFactory.getInstance().get();
+        highlight(highlightManager, writeRanges, editor, ta, highlighters);
     }
 }
