@@ -1,7 +1,7 @@
-
 plugins {
     id 'java'
     id 'org.jetbrains.intellij' version '0.4.22'
+    id 'org.jetbrains.changelog' version '0.4.0'
 }
 
 repositories {
@@ -19,6 +19,8 @@ intellij {
 patchPluginXml {
     sinceBuild 202.2
     untilBuild null
+
+    changeNotes changelog.getLatest().toHTML()
 }
 
 task buildPluginDist() {
