@@ -151,7 +151,7 @@ public class MultiHighlightHandler {
     private static boolean findTarget(@NotNull Project project, @NotNull Editor editor,
             @NotNull PsiFile file) {
         UsageTarget[] usageTargets = UsageTargetUtil.findUsageTargets(editor, file);
-        if (usageTargets != null) {
+        if (usageTargets.length > 0) {
             for (UsageTarget target : usageTargets) {
                 if (target instanceof PsiElement2UsageTargetAdapter) {
                     highlightPsiElement(project,
@@ -268,7 +268,7 @@ public class MultiHighlightHandler {
         // TODO: 06/02/2017 highlight write and read access
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
         highlight(highlightManager, readRanges, editor, highlighters);
-        highlight(highlightManager, writeRanges, editor,highlighters);
+        highlight(highlightManager, writeRanges, editor, highlighters);
 
         final Document doc = editor.getDocument();
         for (RangeHighlighter highlighter : highlighters) {
@@ -366,11 +366,10 @@ public class MultiHighlightHandler {
             }
         }
     }
-    
+
     private static void highlight(@NotNull HighlightManager highlightManager,
             @NotNull Collection<TextRange> textRanges, @NotNull Editor editor,
-            @Nullable Collection<RangeHighlighter> holder
-            ) {
+            @Nullable Collection<RangeHighlighter> holder) {
         final TextAttributes ta = TextAttributesFactory.getInstance().get();
         final Color scrollMarkColor;
         if (ta.getErrorStripeColor() != null) {
@@ -405,15 +404,15 @@ public class MultiHighlightHandler {
         {
             writeRanges.add(new TextRange(m.start(),m.end()));
         }
+
         final HighlightManager highlightManager = HighlightManager.getInstance(project);
         if (isClearHighlights(editor)) {
             clearHighlights(editor, highlightManager, writeRanges);
             WindowManager.getInstance().getStatusBar(project).setInfo("");
             return;
         }
+
         ArrayList<RangeHighlighter> highlighters = new ArrayList<>();
         highlight(highlightManager, writeRanges, editor, highlighters);
-
-        return;
     }
 }
