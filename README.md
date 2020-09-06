@@ -43,5 +43,4 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 ## Change Log
 
-- 1.0.0 first release.
-- 1.0.1 one keystroke to clear all highlights in current editor.
+[check CHANGELOG.md for details](CHANGELOG.md)
