@@ -12,15 +12,21 @@ repositories {
 intellij {
     version '2020.2'
     pluginName 'MultiHighlight'
-    updateSinceUntilBuild false
+    updateSinceUntilBuild true
 }
 
-task buildAndCopyJar() {
-    dependsOn clean, prepareSandbox
+// http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html
+patchPluginXml {
+    sinceBuild 202.2
+    untilBuild null
+}
+
+task buildPluginDist() {
+    dependsOn buildPlugin
     copy {
-        from "${prepareSandbox.getDestinationDir()}/${prepareSandbox.getPluginName()}/lib"
+        from "${project.buildDir}/distributions"
         into project.rootDir
-        include '**/*.jar'
+        include '**/*.zip'
     }
 }
 
