@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.ColorPanel;
-import com.intellij.ui.ListCellRendererWrapper;
+import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.BitUtil;
 import com.intellij.util.EventDispatcher;
@@ -22,11 +22,11 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JPanel;
 
 /**
@@ -46,10 +46,10 @@ public class ColorChooserPanel extends JPanel implements ChooserPanel {
     private ColorPanel myErrorStripeColorChooser;
     private ColorPanel myEffectsColorChooser;
 
-    private Map<String, EffectType> myEffectsMap;
+    private final Map<String, EffectType> myEffectsMap;
 
     {
-        Map<String, EffectType> map = ContainerUtil.newLinkedHashMap();
+        Map<String, EffectType> map = new LinkedHashMap<>();
         map.put(ApplicationBundle.message("combobox.effect.bordered"), EffectType.BOXED);
         map.put(ApplicationBundle.message("combobox.effect.underscored"),
                 EffectType.LINE_UNDERSCORE);
@@ -82,14 +82,9 @@ public class ColorChooserPanel extends JPanel implements ChooserPanel {
         //noinspection unchecked
         myEffectsCombo.setModel(myEffectsModel);
         //noinspection unchecked
-        myEffectsCombo.setRenderer(new ListCellRendererWrapper<String>() {
-
-            @Override
-            public void customize(JList list, String value, int index, boolean selected,
-                    boolean hasFocus) {
-                setText(value != null ? value : "<invalid>");
-            }
-        });
+        myEffectsCombo.setRenderer(SimpleListCellRenderer.create((label, value, index) -> {
+            label.setText(value != null ? (String) value : "<invalid>");
+        }));
 
         ActionListener actionListener = e -> {
             myForegroundChooser.setEnabled(myCbForeground.isSelected());
