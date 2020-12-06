@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- fix compatibility issue with IntelliJ Platform 202.2 ([issue #19](../../issues/19))
+- fix compatibility issue with IntelliJ Platform 202.3 ([issue #19](../../issues/19))
 
 ## [2.0.0] - 2020-09-06
 
