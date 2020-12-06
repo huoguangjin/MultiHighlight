@@ -7,6 +7,7 @@ import com.intellij.codeInsight.highlighting.HighlightManager;
 import com.intellij.codeInsight.highlighting.HighlightManagerImpl;
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler;
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase;
+import com.intellij.codeInsight.highlighting.HighlightUsagesKt;
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector;
 import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.find.FindManager;
@@ -16,16 +17,15 @@ import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.find.impl.FindManagerImpl;
 import com.intellij.injected.editor.EditorWindow;
 import com.intellij.lang.injection.InjectedLanguageManager;
-import com.intellij.model.Symbol;
 import com.intellij.model.psi.impl.TargetsKt;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
@@ -52,7 +52,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,7 +68,7 @@ public class MultiHighlightHandler {
     /**
      * {@link HighlightUsagesHandler#invoke(Project, Editor, PsiFile)}
      *
-     * {@link IdentifierHighlighterPass#doCollectInformation(ProgressIndicator)}
+     * {@link IdentifierHighlighterPass#doCollectInformation()}
      */
     public static void invoke(@NotNull Project project, @NotNull Editor editor,
             @NotNull PsiFile file) {
@@ -88,7 +88,7 @@ public class MultiHighlightHandler {
     private static boolean findSymbols(@NotNull Project project, @NotNull Editor editor,
             @NotNull PsiFile file) {
         final int offset = editor.getCaretModel().getOffset();
-        final Collection<Symbol> allTargets = TargetsKt.targetSymbols(file, offset);
+        var allTargets = TargetsKt.targetSymbols(file, offset);
         if (allTargets.isEmpty()) {
             return false;
         }
@@ -104,11 +104,16 @@ public class MultiHighlightHandler {
         file = InjectedLanguageManager.getInstance(project).getTopLevelFile(file);
 
         final boolean shouldClear = isClearHighlights(editor);
-        for (Symbol symbol : allTargets) {
-            final Couple<List<TextRange>> usages =
-                    IdentifierHighlighterPass.getUsages(file, symbol);
+        for (var symbol : allTargets) {
+            var usageRanges = HighlightUsagesKt.getUsageRanges(file, symbol);
 
-            highlightUsages(project, editor, usages, shouldClear);
+            var readUsages = new ArrayList<>(usageRanges.getReadRanges());
+            readUsages.addAll(usageRanges.getReadDeclarationRanges());
+
+            var writeUsages = new ArrayList<>(usageRanges.getWriteRanges());
+            writeUsages.addAll(usageRanges.getWriteDeclarationRanges());
+
+            highlightUsages(project, editor, new Couple<>(readUsages, writeUsages), shouldClear);
         }
 
         return true;
@@ -338,13 +343,13 @@ public class MultiHighlightHandler {
         if (editor instanceof EditorWindow) {
             editor = ((EditorWindow) editor).getDelegate();
         }
-        
+
         RangeHighlighter[] highlighters =
                 ((HighlightManagerImpl) highlightManager).getHighlighters(editor);
-        
-        Arrays.sort(highlighters, (o1, o2) -> o1.getStartOffset() - o2.getStartOffset());
-        Collections.sort(toRemoves, (o1, o2) -> o1.getStartOffset() - o2.getStartOffset());
-        
+
+        Arrays.sort(highlighters, Comparator.comparingInt(RangeMarker::getStartOffset));
+        toRemoves.sort(Comparator.comparingInt(TextRange::getStartOffset));
+
         int i = 0;
         int j = 0;
         while (i < highlighters.length && j < toRemoves.size()) {
