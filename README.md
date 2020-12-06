@@ -37,6 +37,8 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 ## Build & Run
 
++ jdk 11 required.
+
 + To build MultiHighlight, clone and run `./gradlew buildPlugin`.
 
 + To run IntelliJ IDEA with MultiHighlight installed, run ` ./gradlew runIde`.
