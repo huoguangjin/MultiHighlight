@@ -17,6 +17,7 @@ import com.intellij.find.findUsages.PsiElement2UsageTargetAdapter;
 import com.intellij.find.impl.FindManagerImpl;
 import com.intellij.injected.editor.EditorWindow;
 import com.intellij.lang.injection.InjectedLanguageManager;
+import com.intellij.model.Symbol;
 import com.intellij.model.psi.impl.TargetsKt;
 import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.editor.Document;
@@ -30,6 +31,7 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.PsiCompiledFile;
 import com.intellij.psi.PsiDocumentManager;
@@ -48,6 +50,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +69,29 @@ import top.rammer.multihighlight.config.NamedTextAttr;
  */
 public class MultiHighlightHandler {
 
+    private static final boolean HAS_SYMBOL_API = findHighlightUsagesGetUsageRanges() != null;
+
+    /**
+     * try to find the method {@link HighlightUsagesKt#getUsageRanges(PsiFile, Symbol)}, it is
+     * unstable and marked as internal.
+     */
+    public static Method findHighlightUsagesGetUsageRanges() {
+        Method[] methods = HighlightUsagesKt.class.getDeclaredMethods();
+        for (Method method : methods) {
+            String name = method.getName();
+            if (!name.equals("getUsageRanges")) {
+                continue;
+            }
+
+            int modifier = method.getModifiers();
+            if (Modifier.isPublic(modifier) && Modifier.isStatic(modifier)) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * {@link HighlightUsagesHandler#invoke(Project, Editor, PsiFile)}
      *
@@ -79,9 +106,15 @@ public class MultiHighlightHandler {
         }
 
         DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {
-            if (!findSymbols(project, editor, file) && !findTarget(project, editor, file)) {
-                handleNoUsageTargets(file, editor, project);
+            if (HAS_SYMBOL_API && Registry.is("ide.symbol.find.usages", true) && findSymbols(project, editor, file)) {
+                return;
             }
+
+            if (findTarget(project, editor, file)) {
+                return;
+            }
+
+            handleNoUsageTargets(file, editor, project);
         });
     }
 
@@ -113,7 +146,7 @@ public class MultiHighlightHandler {
             var writeUsages = new ArrayList<>(usageRanges.getWriteRanges());
             writeUsages.addAll(usageRanges.getWriteDeclarationRanges());
 
-            highlightUsages(project, editor, new Couple<>(readUsages, writeUsages), shouldClear);
+            highlightUsages(project, editor, readUsages, writeUsages, shouldClear);
         }
 
         return true;
@@ -131,12 +164,12 @@ public class MultiHighlightHandler {
         if (featureId != null) {
             FeatureUsageTracker.getInstance().triggerFeatureUsed(featureId);
         }
-        
+
         final List targets = handler.getTargets();
         if (targets == null) {
             return false;
         }
-        
+
         try {
             // TODO: 06/02/2017 handle custom usages
             handler.highlightUsages();
@@ -149,10 +182,10 @@ public class MultiHighlightHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         return false;
     }
-    
+
     private static boolean findTarget(@NotNull Project project, @NotNull Editor editor,
             @NotNull PsiFile file) {
         UsageTarget[] usageTargets = UsageTargetUtil.findUsageTargets(editor, file);
@@ -173,7 +206,7 @@ public class MultiHighlightHandler {
                 highlightPsiElement(project, psiElement, editor, file, isClearHighlights(editor));
             } else {
                 boolean found = false;
-                
+
                 final PsiReference ref = TargetElementUtil.findReference(editor);
                 if (ref instanceof PsiPolyVariantReference) {
                     ResolveResult[] results = ((PsiPolyVariantReference) ref).multiResolve(false);
@@ -188,25 +221,25 @@ public class MultiHighlightHandler {
                         }
                     }
                 }
-                
+
                 return found;
             }
         }
-        
+
         return true;
     }
-    
+
     private static boolean isClearHighlights(@NotNull Editor editor) {
         if (editor instanceof EditorWindow) {
             editor = ((EditorWindow) editor).getDelegate();
         }
-        
+
         final Project project = editor.getProject();
         if (project == null) {
             Log.error("isClearHighlights: editor.getProject() == null");
             return false;
         }
-        
+
         int caretOffset = editor.getCaretModel().getOffset();
         final RangeHighlighter[] highlighters =
                 ((HighlightManagerImpl) HighlightManager.getInstance(project)).getHighlighters(
@@ -216,27 +249,27 @@ public class MultiHighlightHandler {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     private static PsiElement findTargetElement(@NotNull Editor editor, @NotNull PsiFile file) {
         PsiElement targetElement = TargetElementUtil.findTargetElement(editor,
                 TargetElementUtil.getInstance().getReferenceSearchFlags());
-        
+
         if (targetElement != null && targetElement != file) {
             if (targetElement instanceof NavigationItem) {
                 targetElement = (targetElement).getNavigationElement();
             }
-            
+
             if (targetElement instanceof NavigationItem) {
                 return targetElement;
             }
         }
-        
+
         return null;
     }
-    
+
     private static void highlightPsiElement(@NotNull Project project,
             @NotNull PsiElement psiElement, @NotNull Editor editor, @NotNull PsiFile file,
             boolean shouldClear) {
@@ -253,15 +286,11 @@ public class MultiHighlightHandler {
         }
 
         final Couple<List<TextRange>> usages = getUsages(target, file);
-        highlightUsages(project, editor, usages, shouldClear);
+        highlightUsages(project, editor, usages.first, usages.second, shouldClear);
     }
 
-    private static void highlightUsages(@NotNull Project project, @NotNull Editor editor,
-            Couple<List<TextRange>> usages, boolean shouldClear) {
-
-        final List<TextRange> readRanges = usages.first;
-        final List<TextRange> writeRanges = usages.second;
-
+    public static void highlightUsages(@NotNull Project project, @NotNull Editor editor, List<TextRange> readRanges,
+            List<TextRange> writeRanges, boolean shouldClear) {
         final HighlightManager highlightManager = HighlightManager.getInstance(project);
         if (shouldClear) {
             clearHighlights(editor, highlightManager, readRanges);
@@ -293,7 +322,7 @@ public class MultiHighlightHandler {
 
         WindowManager.getInstance().getStatusBar(project).setInfo(msg);
     }
-    
+
     @NotNull
     private static Couple<List<TextRange>> getUsages(@NotNull PsiElement target,
             @NotNull PsiElement psiElement) {
@@ -323,7 +352,7 @@ public class MultiHighlightHandler {
             }
             HighlightUsagesHandler.collectRangesToHighlight(psiReference, destination);
         }
-        
+
         final TextRange declareRange =
                 HighlightUsagesHandler.getNameIdentifierRange(psiElement.getContainingFile(),
                         target);
@@ -334,10 +363,10 @@ public class MultiHighlightHandler {
                 readRanges.add(declareRange);
             }
         }
-        
+
         return Couple.of(readRanges, writeRanges);
     }
-    
+
     private static void clearHighlights(Editor editor, HighlightManager highlightManager,
             List<TextRange> toRemoves) {
         if (editor instanceof EditorWindow) {
