@@ -1,26 +1,31 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.22'
-    id 'org.jetbrains.changelog' version '0.4.0'
+    id 'org.jetbrains.intellij' version '1.1.3'
+    id 'org.jetbrains.changelog' version '1.1.1'
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 intellij {
-    version '2020.3'
-    pluginName 'MultiHighlight'
-    updateSinceUntilBuild true
+    // https://plugins.jetbrains.com/docs/intellij/android-studio.html
+    // https://www.jetbrains.com/intellij-repository/releases/
+    version = '2020.3'
+    pluginName = 'MultiHighlight'
+    updateSinceUntilBuild = true
+    // localPath = '/Applications/Android Studio.app'
 }
 
-// http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html
 patchPluginXml {
-    sinceBuild 202.3
-    untilBuild null
+    // https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html
+    sinceBuild = '202.3'
 
-    changeNotes changelog.getLatest().toHTML()
+    changeNotes = changelog.getLatest().toHTML()
+}
+
+runIde {
+    // ideDir = new File('/Applications/Android Studio.app/Contents')
 }
 
 task buildPluginDist() {
