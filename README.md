@@ -37,7 +37,7 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 ## Build & Run
 
-+ jdk 11 required.
++ JDK 11 required, you can set [`org.gradle.java.home`](https://docs.gradle.org/current/userguide/build_environment.html) in `gradle.properties`.
 
 + To build MultiHighlight, clone and run `./gradlew buildPlugin`.
 
