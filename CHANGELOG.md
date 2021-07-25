@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.0] - 2020-07-12
+
+### Fixed
+
+- fix compatibility issue with Android Studio 4.2 (Build #AI-202.7660.26) ([issue #22](../../issues/22))
+
 ## [2.1.0] - 2020-12-06
 
 ### Fixed
