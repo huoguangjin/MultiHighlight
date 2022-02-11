@@ -1,4 +1,4 @@
-package top.rammer.multihighlight.config;
+package com.github.huoguangjin.multihighlight.config;
 
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;

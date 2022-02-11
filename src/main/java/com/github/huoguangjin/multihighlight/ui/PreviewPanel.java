@@ -1,4 +1,4 @@
-package top.rammer.multihighlight.ui;
+package com.github.huoguangjin.multihighlight.ui;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import top.rammer.multihighlight.config.NamedTextAttr;
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 07/02/2017.

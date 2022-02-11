@@ -1,5 +1,6 @@
-package top.rammer.multihighlight.action;
+package com.github.huoguangjin.multihighlight.action;
 
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 import com.intellij.codeInsight.highlighting.HighlightManager;
 import com.intellij.codeInsight.highlighting.HighlightManagerImpl;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -11,8 +12,6 @@ import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
-
-import top.rammer.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by hgj on 13/10/2017.

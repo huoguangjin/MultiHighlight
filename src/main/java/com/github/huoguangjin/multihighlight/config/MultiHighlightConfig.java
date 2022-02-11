@@ -1,4 +1,4 @@
-package top.rammer.multihighlight.config;
+package com.github.huoguangjin.multihighlight.config;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;

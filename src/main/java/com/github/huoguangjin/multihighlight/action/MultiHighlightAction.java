@@ -1,5 +1,6 @@
-package top.rammer.multihighlight.action;
+package com.github.huoguangjin.multihighlight.action;
 
+import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -10,8 +11,6 @@ import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.IndexNotReadyException;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-
-import top.rammer.multihighlight.highlight.MultiHighlightHandler;
 
 /**
  * Created by Rammer on 06/02/2017.

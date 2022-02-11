@@ -1,4 +1,4 @@
-package top.rammer.multihighlight.ui;
+package com.github.huoguangjin.multihighlight.ui;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
@@ -19,7 +19,7 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import top.rammer.multihighlight.config.NamedTextAttr;
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 07/02/2017.

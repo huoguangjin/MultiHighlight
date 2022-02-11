@@ -1,5 +1,6 @@
-package top.rammer.multihighlight.highlight;
+package com.github.huoguangjin.multihighlight.highlight;
 
+import com.github.huoguangjin.multihighlight.Log;
 import com.intellij.codeInsight.TargetElementUtil;
 import com.intellij.codeInsight.daemon.impl.IdentifierHighlighterPass;
 import com.intellij.codeInsight.highlighting.HighlightHandlerBase;
@@ -61,8 +62,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import top.rammer.multihighlight.Log;
-import top.rammer.multihighlight.config.NamedTextAttr;
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 06/02/2017.

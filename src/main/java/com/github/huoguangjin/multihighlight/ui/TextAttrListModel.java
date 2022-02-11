@@ -1,4 +1,4 @@
-package top.rammer.multihighlight.ui;
+package com.github.huoguangjin.multihighlight.ui;
 
 import com.intellij.util.ui.ColumnInfo;
 import com.intellij.util.ui.ListTableModel;
@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.swing.SortOrder;
 
-import top.rammer.multihighlight.config.NamedTextAttr;
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 07/02/2017.

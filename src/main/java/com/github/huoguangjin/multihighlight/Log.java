@@ -1,4 +1,4 @@
-package top.rammer.multihighlight;
+package com.github.huoguangjin.multihighlight;
 
 import com.intellij.openapi.diagnostic.Logger;
 

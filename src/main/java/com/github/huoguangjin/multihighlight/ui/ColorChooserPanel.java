@@ -1,4 +1,4 @@
-package top.rammer.multihighlight.ui;
+package com.github.huoguangjin.multihighlight.ui;
 
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.editor.markup.EffectType;

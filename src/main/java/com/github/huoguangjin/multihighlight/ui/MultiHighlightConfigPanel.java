@@ -1,5 +1,6 @@
-package top.rammer.multihighlight.ui;
+package com.github.huoguangjin.multihighlight.ui;
 
+import com.github.huoguangjin.multihighlight.highlight.TextAttributesFactory;
 import com.intellij.icons.AllIcons;
 import com.intellij.idea.ActionsBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,9 +27,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
-import top.rammer.multihighlight.config.MultiHighlightConfig;
-import top.rammer.multihighlight.config.NamedTextAttr;
-import top.rammer.multihighlight.highlight.TextAttributesFactory;
+import com.github.huoguangjin.multihighlight.config.MultiHighlightConfig;
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 06/02/2017.
