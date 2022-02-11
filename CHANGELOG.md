@@ -1,4 +1,8 @@
+<!-- Keep a Changelog guide -> https://keepachangelog.com -->
+
 # Changelog
+
+## [Unreleased]
 
 ## [2.2.0] - 2020-07-12
 

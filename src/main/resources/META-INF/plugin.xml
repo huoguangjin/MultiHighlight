@@ -3,23 +3,6 @@
     <name>MultiHighlight</name>
     <vendor email="352886006@qq.com" url="https://github.com/huoguangjin">HuoGuangjin</vendor>
 
-    <description>
-        <![CDATA[
-        <p>Highlight identifiers with <b>custom colors</b> (like "Highlight Usages in File").</p>
-        <p>You can <b>customize</b> your highlight text style, it's helpful when reading source
-            code.</p>
-        <p>Shortcut: <b>ctrl+'</b> (or <b>command+'</b> on mac)
-            <a href="https://github.com/huoguangjin/MultiHighlight">learn more</a>
-        </p>
-        <p><img
-            src="https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/preview-screen.png"
-            width="350" height="400" border="0" alt="nice screenshot"></p>
-        <p><img
-            src="https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/preview-setting.png"
-            width="350" height="275" border="0" alt="nice screenshot"></p>
-        ]]>
-    </description>
-
     <depends>com.intellij.modules.lang</depends>
 
     <category>Navigation</category>
