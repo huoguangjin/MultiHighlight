@@ -1,5 +1,6 @@
 package com.github.huoguangjin.multihighlight.action
 
+import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.command.CommandProcessor
@@ -31,7 +32,7 @@ class MultiHighlightAction : DumbAwareAction() {
         val selectionModel = editor.selectionModel
 
         if (psiFile != null && !selectionModel.hasSelection()) {
-          // TODO: 2022/2/13 find usages and highlight
+          MultiHighlightHandler(project, editor, psiFile).highlight()
           return@executeCommand
         }
 
