@@ -7,9 +7,9 @@ import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.model.psi.impl.targetSymbols
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.EditorColors
-import com.intellij.openapi.editor.ex.RangeHighlighterEx
-import com.intellij.openapi.editor.markup.RangeHighlighter
+import com.intellij.openapi.editor.markup.HighlighterLayer
+import com.intellij.openapi.editor.markup.HighlighterTargetArea
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -17,7 +17,6 @@ import com.intellij.psi.PsiCompiledFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
-import com.intellij.util.castSafelyTo
 
 class MultiHighlightHandler(
   private val project: Project,
@@ -70,7 +69,8 @@ class MultiHighlightHandler(
       if (isClear) {
         // TODO: 2022/2/13 remove highlighters
       } else {
-        addHighlight(project, editor, textRanges)
+        val textAttr = TextAttributesFactory.getInstance().get()
+        addHighlight(editor, textAttr, textRanges)
       }
     }
 
@@ -90,25 +90,17 @@ class MultiHighlightHandler(
       }
     }
 
-    fun addHighlight(project: Project, editor: Editor, textRanges: Collection<TextRange>) {
-      val highlighters = mutableListOf<RangeHighlighter>()
+    fun addHighlight(editor: Editor, textAttr: TextAttributes, textRanges: Collection<TextRange>) {
+      val markupModel = editor.markupModel
 
-      val highlightManager = HighlightManager.getInstance(project)
-      val noHighFlags = 0
-      for (textRange in textRanges) {
-        highlightManager.addOccurrenceHighlight(
-          editor,
+      textRanges.forEach { textRange ->
+        markupModel.addRangeHighlighter(
           textRange.startOffset,
           textRange.endOffset,
-          EditorColors.SEARCH_RESULT_ATTRIBUTES,
-          noHighFlags,
-          highlighters
+          HighlighterLayer.SELECTION - 1,
+          textAttr,
+          HighlighterTargetArea.EXACT_RANGE
         )
-      }
-
-      val textAttr = TextAttributesFactory.getInstance().get()
-      for (highlighter in highlighters) {
-        highlighter.castSafelyTo<RangeHighlighterEx>()?.textAttributes = textAttr
       }
     }
   }
