@@ -7,12 +7,12 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.PsiFile;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 class HighlightUsagesHelper {
 
     @SuppressWarnings({ "UnstableApiUsage", "KotlinInternalInJava" })
-    public static Collection<TextRange> getUsageRanges(PsiFile file, Symbol symbol) {
+    public static List<TextRange> getUsageRanges(PsiFile file, Symbol symbol) {
         ArrayList<TextRange> textRanges = new ArrayList<>();
 
         UsageRanges usageRanges = HighlightUsagesKt.getUsageRanges(file, symbol);
