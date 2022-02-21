@@ -7,10 +7,12 @@ import com.intellij.model.psi.impl.targetSymbols
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiCompiledFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
+import java.text.MessageFormat
 
 class MultiHighlightHandler(
   private val project: Project,
@@ -66,10 +68,16 @@ class MultiHighlightHandler(
       } else {
         val textAttr = TextAttributesFactory.getInstance().get()
         multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
+
+        val highlightCount = textRanges.size
+        WindowManager.getInstance().getStatusBar(project).info = if (highlightCount > 0) {
+          MessageFormat.format("{0} {0, choice, 1#usage|2#usages} highlighted", highlightCount)
+        } else {
+          "No usages highlighted"
+        }
       }
     }
 
-    // TODO: 2022/2/13 show highlighted ref count
     return true
   }
 }
