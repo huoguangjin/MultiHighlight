@@ -1,11 +1,10 @@
 # MultiHighlight
 
 <!-- Plugin description -->
-<!-- Plugin description end -->
-
-[MultiHighlight](https://plugins.jetbrains.com/plugin/9511-multihighlight) lets you highlight identifiers with <b>custom colors</b> (like `Highlight Usages in File`), it's helpful when reading source code.
+Highlight identifiers with custom colors, helpful for reading source code.
 
 Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> on mac).
+<!-- Plugin description end -->
 
 ## Screenshots
 
