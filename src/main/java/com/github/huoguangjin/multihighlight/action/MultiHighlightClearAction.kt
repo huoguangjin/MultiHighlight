@@ -1,0 +1,29 @@
+package com.github.huoguangjin.multihighlight.action
+
+import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.project.DumbAwareAction
+
+class MultiHighlightClearAction : DumbAwareAction() {
+
+  init {
+    setInjectedContext(true)
+  }
+
+  override fun update(e: AnActionEvent) {
+    e.presentation.isEnabled = e.project != null && e.getData(CommonDataKeys.EDITOR) != null
+  }
+
+  override fun actionPerformed(e: AnActionEvent) {
+    val project = e.getRequiredData(CommonDataKeys.PROJECT)
+    val editor = e.getRequiredData(CommonDataKeys.EDITOR)
+
+    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val highlighters = multiHighlightManager.getHighlighters(editor)
+
+    highlighters.forEach {
+      multiHighlightManager.removeHighlighter(editor, it)
+    }
+  }
+}

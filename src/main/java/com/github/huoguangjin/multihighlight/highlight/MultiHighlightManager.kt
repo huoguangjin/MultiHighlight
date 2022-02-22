@@ -89,7 +89,7 @@ class MultiHighlightManager(
     return true
   }
 
-  private fun getHighlighters(editor: Editor): Array<out RangeHighlighter> {
+  fun getHighlighters(editor: Editor): Array<out RangeHighlighter> {
     val map = getHighlightInfo(editor, false) ?: return RangeHighlighter.EMPTY_ARRAY
     return map.keys.toTypedArray()
   }
