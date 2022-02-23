@@ -18,6 +18,8 @@ class MultiHighlightConfig : PersistentStateComponent<Element> {
 
   fun updateTextAttrs(textAttrs: List<NamedTextAttr>) {
     namedTextAttrs = textAttrs
+
+    TextAttributesFactory.update()
   }
 
   override fun getState() = Element("root").also { rootTag ->

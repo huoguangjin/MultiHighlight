@@ -1,6 +1,7 @@
 package com.github.huoguangjin.multihighlight.ui;
 
-import com.github.huoguangjin.multihighlight.highlight.TextAttributesFactory;
+import com.github.huoguangjin.multihighlight.config.MultiHighlightConfig;
+import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 import com.intellij.icons.AllIcons;
 import com.intellij.idea.ActionsBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -26,9 +27,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
-
-import com.github.huoguangjin.multihighlight.config.MultiHighlightConfig;
-import com.github.huoguangjin.multihighlight.config.NamedTextAttr;
 
 /**
  * Created by Rammer on 06/02/2017.
@@ -215,7 +213,6 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
     public void apply() throws ConfigurationException {
         final int selectedRow = namedTextAttrList.getSelectedRow();
         MultiHighlightConfig.getInstance().updateTextAttrs(model.getItems());
-        TextAttributesFactory.getInstance().update();
         model.setItems(cloneFromStorage());
         if (0 <= selectedRow && selectedRow < namedTextAttrList.getRowCount()) {
             namedTextAttrList.setRowSelectionInterval(selectedRow, selectedRow);

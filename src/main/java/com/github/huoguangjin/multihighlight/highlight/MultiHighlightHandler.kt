@@ -1,5 +1,6 @@
 package com.github.huoguangjin.multihighlight.highlight
 
+import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler
 import com.intellij.featureStatistics.FeatureUsageTracker
 import com.intellij.lang.injection.InjectedLanguageManager
@@ -66,7 +67,7 @@ class MultiHighlightHandler(
       if (isClear) {
         multiHighlightManager.removeHighlighters(editor, textRanges)
       } else {
-        val textAttr = TextAttributesFactory.getInstance().get()
+        val textAttr = TextAttributesFactory.getNextTextAttr()
         multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
 
         val highlightCount = textRanges.size
