@@ -214,7 +214,7 @@ public class MultiHighlightConfigPanel implements Configurable, Configurable.NoS
     @Override
     public void apply() throws ConfigurationException {
         final int selectedRow = namedTextAttrList.getSelectedRow();
-        MultiHighlightConfig.getInstance().setNamedTextAttrs(model.getItems());
+        MultiHighlightConfig.getInstance().updateTextAttrs(model.getItems());
         TextAttributesFactory.getInstance().update();
         model.setItems(cloneFromStorage());
         if (0 <= selectedRow && selectedRow < namedTextAttrList.getRowCount()) {
