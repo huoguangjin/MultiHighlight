@@ -1,15 +1,16 @@
 package com.github.huoguangjin.multihighlight.ui;
 
+import com.intellij.ide.IdeBundle;
 import com.intellij.openapi.application.ApplicationBundle;
 import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.ColorPanel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.BitUtil;
 import com.intellij.util.EventDispatcher;
+import com.intellij.util.Functions;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 
@@ -26,11 +27,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 /**
- * Created by Rammer on 07/02/2017.
+ * {@link com.intellij.application.options.colors.ColorAndFontDescriptionPanel}
  */
 public class ColorChooserPanel extends JPanel implements ChooserPanel {
 
@@ -51,40 +53,30 @@ public class ColorChooserPanel extends JPanel implements ChooserPanel {
     {
         Map<String, EffectType> map = new LinkedHashMap<>();
         map.put(ApplicationBundle.message("combobox.effect.bordered"), EffectType.BOXED);
-        map.put(ApplicationBundle.message("combobox.effect.underscored"),
-                EffectType.LINE_UNDERSCORE);
-        map.put(ApplicationBundle.message("combobox.effect.boldunderscored"),
-                EffectType.BOLD_LINE_UNDERSCORE);
-        map.put(ApplicationBundle.message("combobox.effect.underwaved"),
-                EffectType.WAVE_UNDERSCORE);
+        map.put(ApplicationBundle.message("combobox.effect.underscored"), EffectType.LINE_UNDERSCORE);
+        map.put(ApplicationBundle.message("combobox.effect.boldunderscored"), EffectType.BOLD_LINE_UNDERSCORE);
+        map.put(ApplicationBundle.message("combobox.effect.underwaved"), EffectType.WAVE_UNDERSCORE);
         map.put(ApplicationBundle.message("combobox.effect.strikeout"), EffectType.STRIKEOUT);
-        map.put(ApplicationBundle.message("combobox.effect.bold.dottedline"),
-                EffectType.BOLD_DOTTED_LINE);
+        map.put(ApplicationBundle.message("combobox.effect.bold.dottedline"), EffectType.BOLD_DOTTED_LINE);
         myEffectsMap = Collections.unmodifiableMap(map);
     }
 
     private JBCheckBox myCbBold;
     private JBCheckBox myCbItalic;
 
-    private ComboBox myEffectsCombo;
+    private JComboBox<String> myEffectsCombo;
 
     private final EventDispatcher<ColorChangedListener> myDispatcher =
             EventDispatcher.create(ColorChangedListener.class);
-
-    private final CollectionComboBoxModel<String> myEffectsModel;
 
     public ColorChooserPanel() {
         super(new BorderLayout());
         add(myPanel, BorderLayout.CENTER);
 
         setBorder(JBUI.Borders.empty(4, 0, 4, 4));
-        myEffectsModel = new CollectionComboBoxModel<>(new ArrayList<>(myEffectsMap.keySet()));
-        //noinspection unchecked
-        myEffectsCombo.setModel(myEffectsModel);
-        //noinspection unchecked
-        myEffectsCombo.setRenderer(SimpleListCellRenderer.create((label, value, index) -> {
-            label.setText(value != null ? (String) value : "<invalid>");
-        }));
+
+        myEffectsCombo.setModel(new CollectionComboBoxModel<>(new ArrayList<>(myEffectsMap.keySet())));
+        myEffectsCombo.setRenderer(SimpleListCellRenderer.create(IdeBundle.message("label.invalid.color"), Functions.id()));
 
         ActionListener actionListener = e -> {
             myForegroundChooser.setEnabled(myCbForeground.isSelected());
@@ -164,8 +156,8 @@ public class ColorChooserPanel extends JPanel implements ChooserPanel {
             myEffectsCombo.setEnabled(false);
         } else {
             myEffectsCombo.setEnabled(true);
-            myEffectsModel.setSelectedItem(
-                    ContainerUtil.reverseMap(myEffectsMap).get(ta.getEffectType()));
+            String effectTypeName = ContainerUtil.reverseMap(myEffectsMap).get(ta.getEffectType());
+            myEffectsCombo.getModel().setSelectedItem(effectTypeName);
         }
     }
 
@@ -216,12 +208,11 @@ public class ColorChooserPanel extends JPanel implements ChooserPanel {
         if (myCbEffects.isSelected()) {
             Color effectColor = myEffectsColorChooser.getSelectedColor();
             ta.setEffectColor(effectColor);
-            //noinspection SuspiciousMethodCalls
             if (effectColor == null) {
                 ta.setEffectType(null);
             } else {
-                //noinspection SuspiciousMethodCalls
-                ta.setEffectType(myEffectsMap.get(myEffectsCombo.getModel().getSelectedItem()));
+                String effectTypeName = (String) myEffectsCombo.getModel().getSelectedItem();
+                ta.setEffectType(myEffectsMap.get(effectTypeName));
             }
         } else {
             ta.setEffectColor(null);
