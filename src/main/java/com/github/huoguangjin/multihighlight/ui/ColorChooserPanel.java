@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.markup.EffectType;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.ui.CollectionComboBoxModel;
 import com.intellij.ui.ColorPanel;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.util.BitUtil;
@@ -167,7 +168,7 @@ public class ColorChooserPanel extends JPanel implements ChooserPanel {
         if (color == null) {
             checkBox.setSelected(false);
             colorPanel.setEnabled(false);
-            colorPanel.setSelectedColor(null);
+            colorPanel.setSelectedColor(JBColor.foreground());
         } else {
             checkBox.setSelected(true);
             colorPanel.setEnabled(true);
