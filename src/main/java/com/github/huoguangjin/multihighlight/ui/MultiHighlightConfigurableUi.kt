@@ -22,7 +22,7 @@ import javax.swing.ListSelectionModel
 
 class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Disposable {
 
-  private val model = TextAttrListModel(mutableListOf())
+  private val model = TextAttrListModel()
   private val namedTextAttrTable = TableView(model).apply {
     isStriped = true
     setShowColumns(false)
