@@ -3,6 +3,7 @@
     <name>MultiHighlight</name>
     <vendor email="352886006@qq.com" url="https://github.com/huoguangjin">HuoGuangjin</vendor>
 
+    <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
 
     <category>Navigation</category>
