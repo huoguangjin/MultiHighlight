@@ -11,7 +11,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Segment
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import java.util.*
 import kotlin.Comparator
 
@@ -19,9 +18,7 @@ class MultiHighlightManager(
   private val project: Project
 ) {
 
-  fun isClearHighlights(e: Editor): Boolean {
-    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(e)
-
+  fun isClearHighlights(editor: Editor): Boolean {
     val caretOffset = editor.caretModel.offset
     val highlighters = getHighlighters(editor)
     return highlighters.any {
@@ -47,9 +44,7 @@ class MultiHighlightManager(
     }
   }
 
-  fun removeHighlighters(e: Editor, textRanges: MutableList<TextRange>) {
-    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(e)
-
+  fun removeHighlighters(editor: Editor, textRanges: MutableList<TextRange>) {
     val highlighters = getHighlighters(editor)
     if (highlighters.isEmpty()) {
       return

@@ -4,6 +4,7 @@ import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 
 class MultiHighlightClearAction : DumbAwareAction() {
 
@@ -17,7 +18,7 @@ class MultiHighlightClearAction : DumbAwareAction() {
 
   override fun actionPerformed(e: AnActionEvent) {
     val project = e.getRequiredData(CommonDataKeys.PROJECT)
-    val editor = e.getRequiredData(CommonDataKeys.EDITOR)
+    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(e.getRequiredData(CommonDataKeys.EDITOR))
 
     val multiHighlightManager = MultiHighlightManager.getInstance(project)
     val highlighters = multiHighlightManager.getHighlighters(editor)
