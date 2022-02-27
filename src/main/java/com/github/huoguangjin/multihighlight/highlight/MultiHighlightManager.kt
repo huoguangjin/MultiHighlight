@@ -12,6 +12,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Segment
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
+import java.util.*
+import kotlin.Comparator
 
 class MultiHighlightManager(
   private val project: Project
@@ -99,7 +101,7 @@ class MultiHighlightManager(
     var map = editor.getUserData(MULTIHIGHLIGHT_INFO_KEY)
 
     if (map == null && toCreate) {
-      map = mutableMapOf()
+      map = WeakHashMap()
       editor.putUserData(MULTIHIGHLIGHT_INFO_KEY, map)
     }
 
