@@ -17,7 +17,7 @@
     <actions>
         <action id="MultiHighlight"
             class="com.github.huoguangjin.multihighlight.action.MultiHighlightAction"
-            text="MultiHighlight: toggle highlight"
+            text="MultiHighlight: Toggle Highlight"
             description="MultiHighlight: toggle highlight">
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta QUOTE"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta QUOTE"/>
@@ -25,7 +25,7 @@
         </action>
         <action id="MultiHighlight.ClearAction"
             class="com.github.huoguangjin.multihighlight.action.MultiHighlightClearAction"
-            text="MultiHighlight: clear highlights in current editor"
+            text="MultiHighlight: Clear Highlights in Current Editor"
             description="MultiHighlight: clear highlights in current editor">
         </action>
     </actions>
