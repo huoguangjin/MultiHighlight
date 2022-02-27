@@ -1,5 +1,6 @@
 package com.github.huoguangjin.multihighlight.highlight
 
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.markup.HighlighterLayer
@@ -114,9 +115,6 @@ class MultiHighlightManager(
     private val MULTIHIGHLIGHT_INFO_KEY: Key<MutableMap<RangeHighlighter, MultiHighlightInfo>> =
       Key.create("MULTIHIGHLIGHT_INFO_KEY")
 
-    @JvmStatic
-    fun getInstance(project: Project): MultiHighlightManager {
-      return project.getService(MultiHighlightManager::class.java)
-    }
+    fun getInstance(project: Project): MultiHighlightManager = project.service()
   }
 }
