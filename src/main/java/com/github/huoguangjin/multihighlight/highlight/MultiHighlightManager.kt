@@ -2,7 +2,9 @@ package com.github.huoguangjin.multihighlight.highlight
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ex.MarkupIterator
 import com.intellij.openapi.editor.ex.MarkupModelEx
+import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -18,13 +20,37 @@ class MultiHighlightManager(
   private val project: Project
 ) {
 
-  fun isClearHighlights(editor: Editor): Boolean {
-    val caretOffset = editor.caretModel.offset
-    val highlighters = getHighlighters(editor)
-    return highlighters.any {
-      TextRange.create(it).grown(1).contains(caretOffset)
+  private inline fun MarkupModelEx.useOverlappingIterator(
+    startOffset: Int,
+    endOffset: Int,
+    block: (MarkupIterator<RangeHighlighterEx>) -> Unit
+  ) {
+    val iterator = overlappingIterator(startOffset, endOffset)
+    try {
+      return block(iterator)
+    } finally {
+      iterator.dispose()
     }
   }
+
+  fun findHighlightAtCaret(editor: Editor): RangeHighlighter? {
+    val map = getHighlightInfo(editor, false) ?: return null
+
+    val caretOffset = editor.caretModel.offset
+
+    val markupModel = editor.markupModel as MarkupModelEx
+    markupModel.useOverlappingIterator(caretOffset, caretOffset) {
+      it.forEach { highlighter ->
+        if (highlighter in map) {
+          return highlighter
+        }
+      }
+    }
+
+    return null
+  }
+
+  fun isClearHighlights(editor: Editor): Boolean = findHighlightAtCaret(editor) != null
 
   fun addHighlighters(editor: Editor, textAttr: TextAttributes, textRanges: Collection<TextRange>) {
     val map = getHighlightInfo(editor, true)!!
