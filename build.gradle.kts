@@ -30,6 +30,9 @@ intellij {
     pluginName.set(project.name)
     version.set(platformVersion)
 
+    // https://github.com/JetBrains/gradle-intellij-plugin#building-properties
+    updateSinceUntilBuild.set(false)
+
     // https://plugins.jetbrains.com/docs/intellij/android-studio.html
     // https://www.jetbrains.com/intellij-repository/releases/
     // localPath.set("/Applications/Android Studio.app")
@@ -67,7 +70,6 @@ tasks {
     patchPluginXml {
         version.set(pluginVersion)
         sinceBuild.set(pluginSinceBuild)
-        untilBuild.set(pluginUntilBuild)
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
         pluginDescription.set(
