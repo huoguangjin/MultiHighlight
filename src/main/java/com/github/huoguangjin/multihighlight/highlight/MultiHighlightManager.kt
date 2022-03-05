@@ -36,10 +36,19 @@ class MultiHighlightManager(
   fun findHighlightAtCaret(editor: Editor): RangeHighlighter? {
     val map = getHighlightInfo(editor, false) ?: return null
 
-    val caretOffset = editor.caretModel.offset
+    val caret = editor.caretModel.currentCaret
+    val startOffset: Int
+    val endOffset: Int
+    if (caret.hasSelection()) {
+      startOffset = caret.selectionStart
+      endOffset = caret.selectionEnd
+    } else {
+      startOffset = caret.offset
+      endOffset = startOffset
+    }
 
     val markupModel = editor.markupModel as MarkupModelEx
-    markupModel.useOverlappingIterator(caretOffset, caretOffset) {
+    markupModel.useOverlappingIterator(startOffset, endOffset) {
       it.forEach { highlighter ->
         if (highlighter in map) {
           return highlighter
@@ -89,9 +98,9 @@ class MultiHighlightManager(
       if (textRange == highlighterRange) {
         removeHighlighter(editor, highlighter)
         i++
-      } else if (textRange.startOffset > highlighterRange.endOffset) {
+      } else if (textRange.startOffset >= highlighterRange.endOffset) {
         i++
-      } else if (textRange.endOffset < highlighterRange.startOffset) {
+      } else if (textRange.endOffset <= highlighterRange.startOffset) {
         j++
       } else {
         i++
