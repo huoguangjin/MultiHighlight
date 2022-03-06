@@ -1,6 +1,7 @@
 package com.github.huoguangjin.multihighlight.action
 
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
+import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.command.CommandProcessor
@@ -41,9 +42,7 @@ class MultiHighlightAction : DumbAwareAction() {
         }
 
         val selectedText = selectionModel.selectedText ?: return@executeCommand
-
-        // TODO: 2022/2/12 highlight selected text
-        thisLogger().debug("psiFile=$psiFile selectedText=$selectedText")
+        MultiHighlightTextHandler(project, editor, psiFile).highlight(selectedText)
       } catch (ex: IndexNotReadyException) {
         DumbService.getInstance(project)
           .showDumbModeNotification("MultiHighlight requires indices and cannot be performed until they are built")
