@@ -33,10 +33,15 @@ class MultiHighlightHandler(
       if (highlightSymbols()) {
         return@withAlternativeResolveEnabled
       }
-    }
 
-    // TODO: 2022/2/12 custom highlight usage handler
-    // TODO: 2022/2/12 highlight usage
+      val selectionModel = editor.selectionModel
+      if (!selectionModel.hasSelection()) {
+        selectionModel.selectWordAtCaret(false)
+      }
+
+      val selectedText = selectionModel.selectedText ?: return@withAlternativeResolveEnabled
+      MultiHighlightTextHandler(project, editor, psiFile).highlight(selectedText)
+    }
   }
 
   fun highlightCustomUsages(): Boolean {
