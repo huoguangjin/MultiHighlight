@@ -32,20 +32,9 @@ class MultiHighlightTextHandler(
 
   fun tryRemoveHighlighters(): Boolean {
     val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val highlighter = multiHighlightManager.findHighlightAtCaret(editor) ?: return false
 
-    val highlighter = multiHighlightManager.findHighlightAtCaret(editor)
-    val highlightedRange = highlighter?.range ?: return false
-    if (highlightedRange.isEmpty) {
-      return false
-    }
-
-    val highlightedText = editor.document.getText(highlightedRange)
-    if (highlightedText.isEmpty()) {
-      return false
-    }
-
-    val textRanges = findText(highlightedText)
-    multiHighlightManager.removeHighlighters(editor, textRanges)
+    multiHighlightManager.removeHighlighters(editor, highlighter)
     return true
   }
 

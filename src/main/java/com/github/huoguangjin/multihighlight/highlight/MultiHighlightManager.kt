@@ -2,6 +2,7 @@ package com.github.huoguangjin.multihighlight.highlight
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.ex.MarkupIterator
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
@@ -13,12 +14,15 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Segment
 import com.intellij.openapi.util.TextRange
+import com.intellij.util.containers.UnsafeWeakList
 import java.util.*
-import kotlin.Comparator
+import java.util.concurrent.atomic.AtomicInteger
 
 class MultiHighlightManager(
   private val project: Project
 ) {
+
+  private val highlightGroupIdGenerator = AtomicInteger()
 
   private inline fun MarkupModelEx.useOverlappingIterator(
     startOffset: Int,
@@ -61,9 +65,25 @@ class MultiHighlightManager(
 
   fun isClearHighlights(editor: Editor): Boolean = findHighlightAtCaret(editor) != null
 
-  fun addHighlighters(editor: Editor, textAttr: TextAttributes, textRanges: Collection<TextRange>) {
+  fun addHighlighters(sourceEditor: Editor, textAttr: TextAttributes, textRanges: Iterable<Segment>) {
+    val groupId = highlightGroupIdGenerator.incrementAndGet()
+    val document = sourceEditor.document
+    val editors = EditorFactory.getInstance().editors(document)
+    editors.forEach {
+      if (it.document == document) {
+        addHighlightersForEditor(groupId, it, textAttr, textRanges)
+      }
+    }
+  }
+
+  private fun addHighlightersForEditor(
+    groupId: Int,
+    editor: Editor,
+    textAttr: TextAttributes,
+    textRanges: Iterable<Segment>,
+  ) {
     val map = getHighlightInfo(editor, true)!!
-    val info = MultiHighlightInfo(editor)
+    val group = MultiHighlightGroup(groupId)
 
     val markupModel = editor.markupModel
     textRanges.forEach { textRange ->
@@ -75,7 +95,48 @@ class MultiHighlightManager(
         HighlighterTargetArea.EXACT_RANGE
       )
 
-      map[highlighter] = info
+      map[highlighter] = group
+      group.highlighters.add(highlighter)
+    }
+  }
+
+  fun removeHighlighters(sourceEditor: Editor, highlighter: RangeHighlighter) {
+    if (!highlighter.isValid) {
+      return
+    }
+
+    val map = getHighlightInfo(sourceEditor, false) ?: return
+    val group = map[highlighter] ?: return
+
+    val groupId = group.id
+    val document = sourceEditor.document
+    val editors = EditorFactory.getInstance().editors(document)
+    editors.forEach {
+      if (it.document == document) {
+        removeHighlightersForEditor(groupId, it)
+      }
+    }
+  }
+
+  private fun removeHighlightersForEditor(groupId: Int, editor: Editor) {
+    val map = getHighlightInfo(editor, false) ?: return
+
+    for ((_, highlightGroup) in map) {
+      // find HighlightGroup by groupId
+      if (highlightGroup.id != groupId) {
+        continue
+      }
+
+      val markupModel = editor.markupModel as MarkupModelEx
+      highlightGroup.highlighters.forEach { highlighter ->
+        if (markupModel.containsHighlighter(highlighter)) {
+          highlighter.dispose()
+        }
+
+        map.remove(highlighter)
+      }
+
+      break
     }
   }
 
@@ -111,9 +172,9 @@ class MultiHighlightManager(
 
   fun removeHighlighter(editor: Editor, highlighter: RangeHighlighter): Boolean {
     val map = getHighlightInfo(editor, false) ?: return false
-    val info = map[highlighter] ?: return false
+    map[highlighter] ?: return false
 
-    val markupModel = info.editor.markupModel as MarkupModelEx
+    val markupModel = editor.markupModel as MarkupModelEx
     if (markupModel.containsHighlighter(highlighter)) {
       highlighter.dispose()
     }
@@ -127,25 +188,32 @@ class MultiHighlightManager(
     return map.keys.toTypedArray()
   }
 
-  private fun getHighlightInfo(editor: Editor, toCreate: Boolean): MutableMap<RangeHighlighter, MultiHighlightInfo>? {
-    var map = editor.getUserData(MULTIHIGHLIGHT_INFO_KEY)
+  private fun getHighlightInfo(
+    editor: Editor,
+    toCreate: Boolean,
+  ): MutableMap<RangeHighlighter, MultiHighlightGroup>? {
+    var map = editor.getUserData(MULTI_HIGHLIGHT_INFO_KEY)
 
     if (map == null && toCreate) {
       map = WeakHashMap()
-      editor.putUserData(MULTIHIGHLIGHT_INFO_KEY, map)
+      editor.putUserData(MULTI_HIGHLIGHT_INFO_KEY, map)
     }
 
     return map
   }
 
-  class MultiHighlightInfo(val editor: Editor)
+  class MultiHighlightGroup(
+    val id: Int,
+  ) {
+    val highlighters = UnsafeWeakList<RangeHighlighter>()
+  }
 
   companion object {
 
     const val MULTIHIGHLIGHT_LAYER = HighlighterLayer.SELECTION - 1
 
-    private val MULTIHIGHLIGHT_INFO_KEY: Key<MutableMap<RangeHighlighter, MultiHighlightInfo>> =
-      Key.create("MULTIHIGHLIGHT_INFO_KEY")
+    private val MULTI_HIGHLIGHT_INFO_KEY: Key<MutableMap<RangeHighlighter, MultiHighlightGroup>> =
+      Key.create("MULTI_HIGHLIGHT_INFO_KEY")
 
     fun getInstance(project: Project): MultiHighlightManager = project.service()
   }

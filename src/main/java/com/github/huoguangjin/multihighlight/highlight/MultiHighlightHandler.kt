@@ -25,6 +25,10 @@ class MultiHighlightHandler(
 ) {
 
   fun highlight() {
+    if (tryRemoveHighlighters()) {
+      return
+    }
+
     if (highlightCustomUsages()) {
       return
     }
@@ -36,6 +40,16 @@ class MultiHighlightHandler(
 
       MultiHighlightTextHandler(project, editor, psiFile).highlight()
     }
+  }
+
+  fun tryRemoveHighlighters(): Boolean {
+    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
+
+    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val highlighter = multiHighlightManager.findHighlightAtCaret(editor) ?: return false
+
+    multiHighlightManager.removeHighlighters(editor, highlighter)
+    return true
   }
 
   fun highlightCustomUsages(): Boolean {
@@ -53,8 +67,7 @@ class MultiHighlightHandler(
     }
 
     val multiHighlightManager = MultiHighlightManager.getInstance(project)
-    val isClear = multiHighlightManager.isClearHighlights(editor)
-    highlightTextRanges(multiHighlightManager, editor, textRanges, isClear)
+    highlightTextRanges(multiHighlightManager, editor, textRanges)
     return true
   }
 
@@ -70,11 +83,9 @@ class MultiHighlightHandler(
     file = InjectedLanguageManager.getInstance(project).getTopLevelFile(file)
 
     val multiHighlightManager = MultiHighlightManager.getInstance(project)
-    // TODO: 2022/4/20 check isClear earlier before resolve references
-    val isClear = multiHighlightManager.isClearHighlights(editor)
     for (target in allTargets) {
       val textRanges = HighlightUsagesHelper.getUsageRanges(file, target)
-      highlightTextRanges(multiHighlightManager, editor, textRanges, isClear)
+      highlightTextRanges(multiHighlightManager, editor, textRanges)
     }
 
     return true
@@ -84,20 +95,15 @@ class MultiHighlightHandler(
     multiHighlightManager: MultiHighlightManager,
     editor: Editor,
     textRanges: MutableList<TextRange>,
-    isClear: Boolean
   ) {
-    if (isClear) {
-      multiHighlightManager.removeHighlighters(editor, textRanges)
-    } else {
-      val textAttr = TextAttributesFactory.getNextTextAttr()
-      multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
+    val textAttr = TextAttributesFactory.getNextTextAttr()
+    multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
 
-      val highlightCount = textRanges.size
-      WindowManager.getInstance().getStatusBar(project).info = if (highlightCount > 0) {
-        MessageFormat.format("{0} {0, choice, 1#usage|2#usages} highlighted", highlightCount)
-      } else {
-        "No usages highlighted"
-      }
+    val highlightCount = textRanges.size
+    WindowManager.getInstance().getStatusBar(project).info = if (highlightCount > 0) {
+      MessageFormat.format("{0} {0, choice, 1#usage|2#usages} highlighted", highlightCount)
+    } else {
+      "No usages highlighted"
     }
   }
 }
