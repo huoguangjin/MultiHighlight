@@ -9,7 +9,6 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 
 class MultiHighlightTextHandler(
   private val project: Project,
@@ -18,7 +17,8 @@ class MultiHighlightTextHandler(
 ) {
 
   fun highlight() {
-    if (tryRemoveHighlighters()) {
+    val multiHighlightManager = MultiHighlightManager.getInstance()
+    if (multiHighlightManager.tryRemoveHighlighterAtCaret(editor)) {
       return
     }
 
@@ -29,17 +29,6 @@ class MultiHighlightTextHandler(
 
     val selectedText = selectionModel.selectedText ?: return
     highlightText(selectedText)
-  }
-
-  fun tryRemoveHighlighters(): Boolean {
-    // TODO: 2022/4/21 move to MultiHighlightManager
-    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
-
-    val multiHighlightManager = MultiHighlightManager.getInstance()
-    val highlighter = multiHighlightManager.findHighlightAtCaret(editor) ?: return false
-
-    multiHighlightManager.removeHighlighters(editor, highlighter)
-    return true
   }
 
   fun highlightText(text: String) {

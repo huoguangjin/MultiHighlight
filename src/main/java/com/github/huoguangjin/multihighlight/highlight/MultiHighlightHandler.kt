@@ -25,7 +25,8 @@ class MultiHighlightHandler(
 ) {
 
   fun highlight() {
-    if (tryRemoveHighlighters()) {
+    val multiHighlightManager = MultiHighlightManager.getInstance()
+    if (multiHighlightManager.tryRemoveHighlighterAtCaret(editor)) {
       return
     }
 
@@ -40,16 +41,6 @@ class MultiHighlightHandler(
 
       MultiHighlightTextHandler(project, editor, psiFile).highlight()
     }
-  }
-
-  fun tryRemoveHighlighters(): Boolean {
-    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
-
-    val multiHighlightManager = MultiHighlightManager.getInstance()
-    val highlighter = multiHighlightManager.findHighlightAtCaret(editor) ?: return false
-
-    multiHighlightManager.removeHighlighters(editor, highlighter)
-    return true
   }
 
   fun highlightCustomUsages(): Boolean {

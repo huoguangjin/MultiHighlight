@@ -12,6 +12,7 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Segment
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.util.containers.UnsafeWeakList
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -19,6 +20,13 @@ import java.util.concurrent.atomic.AtomicInteger
 class MultiHighlightManager {
 
   private val highlightGroupIdGenerator = AtomicInteger()
+
+  fun tryRemoveHighlighterAtCaret(sourceEditor: Editor): Boolean {
+    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(sourceEditor)
+    val highlighter = findHighlightAtCaret(editor) ?: return false
+    removeHighlighters(editor, highlighter)
+    return true
+  }
 
   private inline fun MarkupModelEx.useOverlappingIterator(
     startOffset: Int,
