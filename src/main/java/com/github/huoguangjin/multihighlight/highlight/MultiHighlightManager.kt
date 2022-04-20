@@ -12,7 +12,6 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Segment
-import com.intellij.openapi.util.TextRange
 import com.intellij.util.containers.UnsafeWeakList
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -59,8 +58,6 @@ class MultiHighlightManager {
 
     return null
   }
-
-  fun isClearHighlights(editor: Editor): Boolean = findHighlightAtCaret(editor) != null
 
   fun addHighlighters(sourceEditor: Editor, textAttr: TextAttributes, textRanges: Iterable<Segment>) {
     val groupId = highlightGroupIdGenerator.incrementAndGet()
@@ -137,52 +134,15 @@ class MultiHighlightManager {
     }
   }
 
-  fun removeHighlighters(editor: Editor, textRanges: MutableList<TextRange>) {
-    val highlighters = getHighlighters(editor)
-    if (highlighters.isEmpty()) {
-      return
-    }
-
-    highlighters.sortWith(Comparator.comparingInt(Segment::getStartOffset))
-    textRanges.sortWith(Comparator.comparingInt(Segment::getStartOffset))
-
-    var i = 0
-    var j = 0
-    while (i < highlighters.size && j < textRanges.size) {
-      val highlighter = highlighters[i]
-      val highlighterRange = TextRange.create(highlighter)
-      val textRange = textRanges[j]
-
-      if (textRange == highlighterRange) {
-        removeHighlighter(editor, highlighter)
-        i++
-      } else if (textRange.startOffset >= highlighterRange.endOffset) {
-        i++
-      } else if (textRange.endOffset <= highlighterRange.startOffset) {
-        j++
-      } else {
-        i++
-        j++
-      }
-    }
-  }
-
-  fun removeHighlighter(editor: Editor, highlighter: RangeHighlighter): Boolean {
+  fun removeAllHighlighters(editor: Editor): Boolean {
     val map = getHighlightInfo(editor, false) ?: return false
-    map[highlighter] ?: return false
 
-    val markupModel = editor.markupModel as MarkupModelEx
-    if (markupModel.containsHighlighter(highlighter)) {
+    map.forEach { (highlighter, _) ->
       highlighter.dispose()
     }
 
-    map.remove(highlighter)
+    map.clear()
     return true
-  }
-
-  fun getHighlighters(editor: Editor): Array<out RangeHighlighter> {
-    val map = getHighlightInfo(editor, false) ?: return RangeHighlighter.EMPTY_ARRAY
-    return map.keys.toTypedArray()
   }
 
   private fun getHighlightInfo(

@@ -20,10 +20,6 @@ class MultiHighlightClearAction : DumbAwareAction() {
     val editor = InjectedLanguageEditorUtil.getTopLevelEditor(e.getRequiredData(CommonDataKeys.EDITOR))
 
     val multiHighlightManager = MultiHighlightManager.getInstance()
-    val highlighters = multiHighlightManager.getHighlighters(editor)
-
-    highlighters.forEach {
-      multiHighlightManager.removeHighlighter(editor, it)
-    }
+    multiHighlightManager.removeAllHighlighters(editor)
   }
 }
