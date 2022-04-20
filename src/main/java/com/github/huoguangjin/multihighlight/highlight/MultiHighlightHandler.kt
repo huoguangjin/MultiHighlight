@@ -34,13 +34,7 @@ class MultiHighlightHandler(
         return@withAlternativeResolveEnabled
       }
 
-      val selectionModel = editor.selectionModel
-      if (!selectionModel.hasSelection()) {
-        selectionModel.selectWordAtCaret(false)
-      }
-
-      val selectedText = selectionModel.selectedText ?: return@withAlternativeResolveEnabled
-      MultiHighlightTextHandler(project, editor, psiFile).highlight(selectedText)
+      MultiHighlightTextHandler(project, editor, psiFile).highlight()
     }
   }
 
@@ -76,6 +70,7 @@ class MultiHighlightHandler(
     file = InjectedLanguageManager.getInstance(project).getTopLevelFile(file)
 
     val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    // TODO: 2022/4/20 check isClear earlier before resolve references
     val isClear = multiHighlightManager.isClearHighlights(editor)
     for (target in allTargets) {
       val textRanges = HighlightUsagesHelper.getUsageRanges(file, target)

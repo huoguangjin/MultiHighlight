@@ -5,7 +5,6 @@ import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.IndexNotReadyException
@@ -37,12 +36,7 @@ class MultiHighlightAction : DumbAwareAction() {
           return@executeCommand
         }
 
-        if (!selectionModel.hasSelection()) {
-          selectionModel.selectWordAtCaret(false)
-        }
-
-        val selectedText = selectionModel.selectedText ?: return@executeCommand
-        MultiHighlightTextHandler(project, editor, psiFile).highlight(selectedText)
+        MultiHighlightTextHandler(project, editor, psiFile).highlight()
       } catch (ex: IndexNotReadyException) {
         DumbService.getInstance(project)
           .showDumbModeNotification("MultiHighlight requires indices and cannot be performed until they are built")

@@ -16,25 +16,45 @@ class MultiHighlightTextHandler(
   private val psiFile: PsiFile?,
 ) {
 
-  fun highlight(text: String) {
+  fun highlight() {
+    if (tryRemoveHighlighters()) {
+      return
+    }
+
+    val selectionModel = editor.selectionModel
+    if (!selectionModel.hasSelection()) {
+      selectionModel.selectWordAtCaret(false)
+    }
+
+    val selectedText = selectionModel.selectedText ?: return
+    highlightText(selectedText)
+  }
+
+  fun tryRemoveHighlighters(): Boolean {
     val multiHighlightManager = MultiHighlightManager.getInstance(project)
 
     val highlighter = multiHighlightManager.findHighlightAtCaret(editor)
-    highlighter?.range?.let { highlightedRange ->
-      if (!highlightedRange.isEmpty) {
-        val highlightedText = editor.document.getText(highlightedRange)
-        if (highlightedText.isNotEmpty()) {
-          val textRanges = findText(highlightedText)
-          multiHighlightManager.removeHighlighters(editor, textRanges)
-          return
-        }
-      }
+    val highlightedRange = highlighter?.range ?: return false
+    if (highlightedRange.isEmpty) {
+      return false
     }
 
+    val highlightedText = editor.document.getText(highlightedRange)
+    if (highlightedText.isEmpty()) {
+      return false
+    }
+
+    val textRanges = findText(highlightedText)
+    multiHighlightManager.removeHighlighters(editor, textRanges)
+    return true
+  }
+
+  fun highlightText(text: String) {
     if (text.isEmpty()) {
       return
     }
 
+    val multiHighlightManager = MultiHighlightManager.getInstance(project)
     val textRanges = findText(text)
     val textAttr = TextAttributesFactory.getNextTextAttr()
     multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
