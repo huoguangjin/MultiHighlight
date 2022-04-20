@@ -31,7 +31,7 @@ class MultiHighlightTextHandler(
   }
 
   fun tryRemoveHighlighters(): Boolean {
-    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val multiHighlightManager = MultiHighlightManager.getInstance()
     val highlighter = multiHighlightManager.findHighlightAtCaret(editor) ?: return false
 
     multiHighlightManager.removeHighlighters(editor, highlighter)
@@ -43,7 +43,7 @@ class MultiHighlightTextHandler(
       return
     }
 
-    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val multiHighlightManager = MultiHighlightManager.getInstance()
     val textRanges = findText(text)
     val textAttr = TextAttributesFactory.getNextTextAttr()
     multiHighlightManager.addHighlighters(editor, textAttr, textRanges)

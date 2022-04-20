@@ -45,7 +45,7 @@ class MultiHighlightHandler(
   fun tryRemoveHighlighters(): Boolean {
     val editor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
 
-    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val multiHighlightManager = MultiHighlightManager.getInstance()
     val highlighter = multiHighlightManager.findHighlightAtCaret(editor) ?: return false
 
     multiHighlightManager.removeHighlighters(editor, highlighter)
@@ -66,7 +66,7 @@ class MultiHighlightHandler(
       return true
     }
 
-    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val multiHighlightManager = MultiHighlightManager.getInstance()
     highlightTextRanges(multiHighlightManager, editor, textRanges)
     return true
   }
@@ -82,7 +82,7 @@ class MultiHighlightHandler(
     var file = if (psiFile is PsiCompiledFile) psiFile.decompiledPsiFile else psiFile
     file = InjectedLanguageManager.getInstance(project).getTopLevelFile(file)
 
-    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val multiHighlightManager = MultiHighlightManager.getInstance()
     for (target in allTargets) {
       val textRanges = HighlightUsagesHelper.getUsageRanges(file, target)
       highlightTextRanges(multiHighlightManager, editor, textRanges)

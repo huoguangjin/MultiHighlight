@@ -12,7 +12,7 @@
         <applicationService serviceImplementation="com.github.huoguangjin.multihighlight.config.MultiHighlightConfig"/>
         <applicationConfigurable instance="com.github.huoguangjin.multihighlight.ui.MultiHighlightConfigurable"/>
 
-        <projectService serviceImplementation="com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager"/>
+        <applicationService serviceImplementation="com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager"/>
     </extensions>
 
     <actions>

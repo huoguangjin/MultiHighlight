@@ -13,14 +13,13 @@ class MultiHighlightClearAction : DumbAwareAction() {
   }
 
   override fun update(e: AnActionEvent) {
-    e.presentation.isEnabled = e.project != null && e.getData(CommonDataKeys.EDITOR) != null
+    e.presentation.isEnabled = e.getData(CommonDataKeys.EDITOR) != null
   }
 
   override fun actionPerformed(e: AnActionEvent) {
-    val project = e.getRequiredData(CommonDataKeys.PROJECT)
     val editor = InjectedLanguageEditorUtil.getTopLevelEditor(e.getRequiredData(CommonDataKeys.EDITOR))
 
-    val multiHighlightManager = MultiHighlightManager.getInstance(project)
+    val multiHighlightManager = MultiHighlightManager.getInstance()
     val highlighters = multiHighlightManager.getHighlighters(editor)
 
     highlighters.forEach {

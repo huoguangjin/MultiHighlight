@@ -10,7 +10,6 @@ import com.intellij.openapi.editor.markup.HighlighterLayer
 import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.Segment
 import com.intellij.openapi.util.TextRange
@@ -18,9 +17,7 @@ import com.intellij.util.containers.UnsafeWeakList
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class MultiHighlightManager(
-  private val project: Project
-) {
+class MultiHighlightManager {
 
   private val highlightGroupIdGenerator = AtomicInteger()
 
@@ -215,6 +212,6 @@ class MultiHighlightManager(
     private val MULTI_HIGHLIGHT_INFO_KEY: Key<MutableMap<RangeHighlighter, MultiHighlightGroup>> =
       Key.create("MULTI_HIGHLIGHT_INFO_KEY")
 
-    fun getInstance(project: Project): MultiHighlightManager = project.service()
+    fun getInstance(): MultiHighlightManager = service()
   }
 }
