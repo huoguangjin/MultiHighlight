@@ -53,7 +53,8 @@ class MultiHighlightHandler(
     }
 
     val multiHighlightManager = MultiHighlightManager.getInstance()
-    highlightTextRanges(multiHighlightManager, editor, textRanges)
+    val hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
+    highlightTextRanges(multiHighlightManager, hostEditor, textRanges)
     return true
   }
 
