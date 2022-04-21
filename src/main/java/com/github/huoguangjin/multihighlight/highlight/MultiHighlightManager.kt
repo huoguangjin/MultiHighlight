@@ -72,9 +72,7 @@ class MultiHighlightManager {
     val document = sourceEditor.document
     val editors = EditorFactory.getInstance().editors(document)
     editors.forEach {
-      if (it.document == document) {
-        addHighlightersForEditor(groupId, it, textAttr, textRanges)
-      }
+      addHighlightersForEditor(groupId, it, textAttr, textRanges)
     }
   }
 
@@ -114,9 +112,7 @@ class MultiHighlightManager {
     val document = sourceEditor.document
     val editors = EditorFactory.getInstance().editors(document)
     editors.forEach {
-      if (it.document == document) {
-        removeHighlightersForEditor(groupId, it)
-      }
+      removeHighlightersForEditor(groupId, it)
     }
   }
 
