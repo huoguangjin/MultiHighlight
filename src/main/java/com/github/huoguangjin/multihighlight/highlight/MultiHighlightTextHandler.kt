@@ -8,7 +8,9 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiFile
+import java.text.MessageFormat
 
 class MultiHighlightTextHandler(
   private val project: Project,
@@ -47,6 +49,13 @@ class MultiHighlightTextHandler(
       multiHighlightManager.addHighlighters(hostEditor, textAttr, hostTextRanges)
     } else {
       multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
+    }
+
+    val highlightCount = textRanges.size
+    WindowManager.getInstance().getStatusBar(project).info = if (highlightCount > 0) {
+      MessageFormat.format("{0} {0, choice, 1#text|2#texts} highlighted", highlightCount)
+    } else {
+      "No texts highlighted"
     }
   }
 
