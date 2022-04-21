@@ -3,6 +3,8 @@ package com.github.huoguangjin.multihighlight.highlight
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.event.EditorFactoryEvent
+import com.intellij.openapi.editor.event.EditorFactoryListener
 import com.intellij.openapi.editor.ex.MarkupIterator
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
@@ -17,9 +19,28 @@ import com.intellij.util.containers.UnsafeWeakList
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
-class MultiHighlightManager {
+class MultiHighlightManager : EditorFactoryListener {
 
   private val highlightGroupIdGenerator = AtomicInteger()
+
+  override fun editorCreated(event: EditorFactoryEvent) {
+    val editor = event.editor
+
+    val editors = EditorFactory.getInstance().editors(editor.document)
+    val existedEditor = editors.filter { it != editor }.findFirst().orElse(null) ?: return
+    val map = getHighlightInfo(existedEditor, false) ?: return
+
+    val addedGroups = hashSetOf<Int>()
+    for ((highlighter, group) in map) {
+      val groupId = group.id
+      if (!addedGroups.add(groupId)) {
+        continue
+      }
+
+      val textAttr = (highlighter as RangeHighlighterEx).forcedTextAttributes!!
+      addHighlightersForEditor(groupId, editor, textAttr, group.highlighters)
+    }
+  }
 
   fun tryRemoveHighlighterAtCaret(sourceEditor: Editor): Boolean {
     val editor = InjectedLanguageEditorUtil.getTopLevelEditor(sourceEditor)

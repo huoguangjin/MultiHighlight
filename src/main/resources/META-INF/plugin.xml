@@ -13,6 +13,8 @@
         <applicationConfigurable instance="com.github.huoguangjin.multihighlight.ui.MultiHighlightConfigurable"/>
 
         <applicationService serviceImplementation="com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager"/>
+
+        <editorFactoryListener implementation="com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager"/>
     </extensions>
 
     <actions>
