@@ -65,14 +65,14 @@ class MultiHighlightHandler(
       return false
     }
 
-    val editor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
+    val hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
     var file = if (psiFile is PsiCompiledFile) psiFile.decompiledPsiFile else psiFile
     file = InjectedLanguageManager.getInstance(project).getTopLevelFile(file)
 
     val multiHighlightManager = MultiHighlightManager.getInstance()
     for (target in allTargets) {
       val textRanges = HighlightUsagesHelper.getUsageRanges(file, target)
-      highlightTextRanges(multiHighlightManager, editor, textRanges)
+      highlightTextRanges(multiHighlightManager, hostEditor, textRanges)
     }
 
     return true
