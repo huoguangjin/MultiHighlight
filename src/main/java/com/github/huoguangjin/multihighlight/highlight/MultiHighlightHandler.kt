@@ -25,11 +25,6 @@ class MultiHighlightHandler(
 ) {
 
   fun highlight() {
-    val multiHighlightManager = MultiHighlightManager.getInstance()
-    if (multiHighlightManager.tryRemoveHighlighterAtCaret(editor)) {
-      return
-    }
-
     if (highlightCustomUsages()) {
       return
     }

@@ -17,11 +17,6 @@ class MultiHighlightTextHandler(
 ) {
 
   fun highlight() {
-    val multiHighlightManager = MultiHighlightManager.getInstance()
-    if (multiHighlightManager.tryRemoveHighlighterAtCaret(editor)) {
-      return
-    }
-
     val selectionModel = editor.selectionModel
     if (!selectionModel.hasSelection()) {
       selectionModel.selectWordAtCaret(false)

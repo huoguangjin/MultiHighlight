@@ -1,6 +1,7 @@
 package com.github.huoguangjin.multihighlight.action
 
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
+import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -30,6 +31,11 @@ class MultiHighlightAction : DumbAwareAction() {
 
         val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document)
         val selectionModel = editor.selectionModel
+
+        val multiHighlightManager = MultiHighlightManager.getInstance()
+        if (multiHighlightManager.tryRemoveHighlighterAtCaret(editor)) {
+          return@executeCommand
+        }
 
         if (psiFile != null && !selectionModel.hasSelection()) {
           MultiHighlightHandler(project, editor, psiFile).highlight()
