@@ -61,13 +61,13 @@ class ColorPreviewPanel : PreviewPanel {
         // IDEA-53203: add ERASE_MARKER for manually defined attributes
         markupModel.addRangeHighlighter(
           lineStartOffset, lineEndOffset,
-          MultiHighlightManager.MULTIHIGHLIGHT_LAYER, TextAttributes.ERASE_MARKER,
+          MultiHighlightManager.MULTI_HIGHLIGHT_LAYER, TextAttributes.ERASE_MARKER,
           HighlighterTargetArea.EXACT_RANGE
         )
 
         markupModel.addRangeHighlighter(
           lineStartOffset, lineEndOffset,
-          MultiHighlightManager.MULTIHIGHLIGHT_LAYER, textAttr,
+          MultiHighlightManager.MULTI_HIGHLIGHT_LAYER, textAttr,
           HighlighterTargetArea.EXACT_RANGE
         )
       } catch (e: Exception) {

@@ -111,7 +111,7 @@ class MultiHighlightManager : EditorFactoryListener {
       val highlighter = markupModel.addRangeHighlighter(
         textRange.startOffset,
         textRange.endOffset,
-        MULTIHIGHLIGHT_LAYER,
+        MULTI_HIGHLIGHT_LAYER,
         textAttr,
         HighlighterTargetArea.EXACT_RANGE
       )
@@ -192,7 +192,7 @@ class MultiHighlightManager : EditorFactoryListener {
 
   companion object {
 
-    const val MULTIHIGHLIGHT_LAYER = HighlighterLayer.SELECTION - 1
+    const val MULTI_HIGHLIGHT_LAYER = HighlighterLayer.SELECTION - 1
 
     private val MULTI_HIGHLIGHT_INFO_KEY: Key<MutableMap<RangeHighlighter, MultiHighlightGroup>> =
       Key.create("MULTI_HIGHLIGHT_INFO_KEY")
