@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix conflict with IdeaVim (and AceJump). [#4](https://github.com/huoguangjin/MultiHighlight/issues/4)
+- Fix misplaced highlights in injected code fragment.
+
+### Added
+
+- Toggle highlights across all the editors. [#2](https://github.com/huoguangjin/MultiHighlight/issues/2)
+- Better support for highlighting plain text. [#11](https://github.com/huoguangjin/MultiHighlight/issues/11)
+- Support for highlighting special usages. (e.g. throws keyword in java method signatures)
+
 ## [2.2.0] - 2020-07-12
 
 ### Fixed
