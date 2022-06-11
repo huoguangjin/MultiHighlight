@@ -5,7 +5,7 @@ Highlight identifiers with custom colors, helpful for reading source code.
 
 Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> on mac).
 
-![preview](https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/preview.gif)
+![preview](https://raw.githubusercontent.com/huoguangjin/MultiHighlight/v3.0.0/screenshot/preview.gif)
 
 <!-- Plugin description end -->
 
