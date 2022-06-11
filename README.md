@@ -1,5 +1,9 @@
 # MultiHighlight
 
+![Build](https://github.com/huoguangjin/MultiHighlight/workflows/Build/badge.svg)
+[![Version](https://img.shields.io/jetbrains/plugin/v/9511.svg)](https://plugins.jetbrains.com/plugin/9511)
+[![Downloads](https://img.shields.io/jetbrains/plugin/d/9511.svg)](https://plugins.jetbrains.com/plugin/9511)
+
 <!-- Plugin description -->
 Highlight identifiers with custom colors, helpful for reading source code.
 
