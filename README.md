@@ -4,11 +4,11 @@
 Highlight identifiers with custom colors, helpful for reading source code.
 
 Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> on mac).
+
+![preview](https://raw.githubusercontent.com/huoguangjin/MultiHighlight/master/screenshot/preview.gif)
+
 <!-- Plugin description end -->
 
-## Screenshots
-
-![screenshot-clion](screenshot/screen-default.png)
 ![screenshot-studio](screenshot/screen-darcula.png)
 
 ## Install
