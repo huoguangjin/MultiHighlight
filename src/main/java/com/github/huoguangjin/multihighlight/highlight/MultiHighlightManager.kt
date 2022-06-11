@@ -37,6 +37,7 @@ class MultiHighlightManager : EditorFactoryListener {
         continue
       }
 
+      @Suppress("UnstableApiUsage")
       val textAttr = (highlighter as RangeHighlighterEx).forcedTextAttributes!!
       addHighlightersForEditor(groupId, editor, textAttr, group.highlighters)
     }
