@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [3.0.0]
+## [3.0.0] - 2022-06-12
 ### Fixed
 - Fix conflict with IdeaVim (and AceJump). [#4](https://github.com/huoguangjin/MultiHighlight/issues/4)
 - Fix misplaced highlights in injected code fragment.
@@ -14,7 +14,12 @@
 - Better support for highlighting plain text. [#11](https://github.com/huoguangjin/MultiHighlight/issues/11)
 - Support for highlighting special usages. (e.g. throws keyword in java method signatures)
 
-## [2.2.0] - 2020-07-12
+## [2.2.1] - 2022-06-12
+### Fixed
+
+- Fix compatibility issue of MultiHighlight 2.2.0 when the IDE is upgraded from 2021.1. ([issue #29](../../issues/29))
+
+## [2.2.0] - 2021-07-12
 ### Fixed
 - Fix compatibility issue with Android Studio 4.2 (Build #AI-202.7660.26). [#22](https://github.com/huoguangjin/MultiHighlight/issues/22)
 
