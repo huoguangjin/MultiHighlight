@@ -11,7 +11,7 @@ repositories {
 intellij {
     // https://plugins.jetbrains.com/docs/intellij/android-studio.html
     // https://www.jetbrains.com/intellij-repository/releases/
-    version = '2021.1.3'
+    version = '2021.3'
     pluginName = 'MultiHighlight'
     updateSinceUntilBuild = true
     // localPath = '/Applications/Android Studio.app'
@@ -38,4 +38,4 @@ task buildPluginDist() {
 }
 
 group 'top.rammer'
-version '2.2.0'
+version '2.2.1'
