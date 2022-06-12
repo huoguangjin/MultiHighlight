@@ -1,6 +1,12 @@
 # Changelog
 
-## [2.2.0] - 2020-07-12
+## [2.2.1] - 2022-06-12
+
+### Fixed
+
+- Fix compatibility issue of MultiHighlight 2.2.0 when the IDE is upgraded from 2021.1. ([issue #29](../../issues/29))
+
+## [2.2.0] - 2021-07-12
 
 ### Fixed
 
