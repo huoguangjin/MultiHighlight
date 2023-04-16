@@ -43,7 +43,7 @@ Default shortcut: <kbd>Ctrl</kbd>+<kbd>'</kbd> (or <kbd>⌘</kbd>+<kbd>'</kbd> o
 
 ## Build & Run
 
-+ JDK 11 required, you can set [`org.gradle.java.home`](https://docs.gradle.org/current/userguide/build_environment.html) in `gradle.properties`.
++ JDK 11 required, set `JAVA_HOME` environment variable, or set **Build, Execution, Deployment > Build Tools > Gradle > Gradle JVM** in IDEA settings.
 
 + To build MultiHighlight, clone and run `./gradlew buildPlugin`.
 
