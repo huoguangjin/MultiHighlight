@@ -18,8 +18,6 @@ val platformVersion: String by project
 
 val javaVersion: String by project
 
-val gradleVersion: String by project
-
 repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
@@ -33,7 +31,7 @@ intellij {
     // https://github.com/JetBrains/gradle-intellij-plugin#building-properties
     updateSinceUntilBuild.set(false)
 
-    // https://plugins.jetbrains.com/docs/intellij/android-studio.html
+    // https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html
     // https://www.jetbrains.com/intellij-repository/releases/
     // localPath.set("/Applications/Android Studio.app")
 }
@@ -64,7 +62,8 @@ tasks {
     }
 
     wrapper {
-        gradleVersion = gradleVersion
+        val gradleVersion: String by project
+        setGradleVersion(gradleVersion)
     }
 
     patchPluginXml {
