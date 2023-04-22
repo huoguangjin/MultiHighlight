@@ -29,13 +29,13 @@ class MultiHighlightAction : DumbAwareAction() {
       try {
         PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document)
-        val selectionModel = editor.selectionModel
-
         val multiHighlightManager = MultiHighlightManager.getInstance()
         if (multiHighlightManager.tryRemoveHighlighterAtCaret(editor)) {
           return@executeCommand
         }
+
+        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document)
+        val selectionModel = editor.selectionModel
 
         if (psiFile != null && !selectionModel.hasSelection()) {
           MultiHighlightHandler(project, editor, psiFile).highlight()
