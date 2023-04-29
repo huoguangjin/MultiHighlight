@@ -8,17 +8,23 @@ import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.ui.popup.WizardPopup
 import java.awt.Color
+import java.awt.event.ActionEvent
+import javax.swing.AbstractAction
 import javax.swing.Icon
 
 class MultiHighlightWithColorAction : DumbAwareAction() {
@@ -49,9 +55,30 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
         defaultOptionIndex = TextAttributesFactory.getNextTextAttrIndex()
       }
       JBPopupFactory.getInstance()
-        .createListPopup(listPopupStep)
+        .createListPopup(listPopupStep).also(::addKeyStrokeAction)
         .showInBestPositionFor(editor)
     }, "MultiHighlight", null)
+  }
+
+  private fun addKeyStrokeAction(listPopup: ListPopup) {
+    if (listPopup !is WizardPopup) {
+      return
+    }
+
+    val actionId = "MultiHighlightWithColor"
+    val shortcuts = KeymapUtil.getActiveKeymapShortcuts(actionId).shortcuts // todo
+    for (shortcut in shortcuts) {
+      if (shortcut !is KeyboardShortcut || shortcut.secondKeyStroke != null) {
+        continue
+      }
+
+      val keyStroke = shortcut.firstKeyStroke
+      listPopup.registerAction(actionId, keyStroke, object : AbstractAction(actionId) {
+        override fun actionPerformed(e: ActionEvent?) {
+          listPopup.handleSelect(true)
+        }
+      })
+    }
   }
 }
 
