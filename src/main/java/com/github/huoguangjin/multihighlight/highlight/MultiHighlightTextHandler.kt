@@ -5,18 +5,22 @@ import com.intellij.find.FindManager
 import com.intellij.find.FindModel
 import com.intellij.injected.editor.EditorWindow
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.wm.WindowManager
-import com.intellij.psi.PsiFile
 import java.text.MessageFormat
 
 class MultiHighlightTextHandler(
   private val project: Project,
   private val editor: Editor,
-  private val psiFile: PsiFile?,
+  private val textAttr: TextAttributes,
 ) {
+  constructor(
+    project: Project,
+    editor: Editor,
+  ) : this(project, editor, TextAttributesFactory.getNextTextAttr())
 
   fun highlight() {
     val selectionModel = editor.selectionModel
@@ -35,7 +39,6 @@ class MultiHighlightTextHandler(
 
     val multiHighlightManager = MultiHighlightManager.getInstance()
     val textRanges = findText(text)
-    val textAttr = TextAttributesFactory.getNextTextAttr()
 
     if (editor is EditorWindow) {
       // The text ranges are found in the injected editor which is an EditorWindow. Different EditorWindows created from

@@ -8,6 +8,7 @@ import com.intellij.model.psi.impl.targetSymbols
 import com.intellij.openapi.diagnostic.runAndLogException
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -22,7 +23,14 @@ class MultiHighlightHandler(
   private val project: Project,
   private val editor: Editor,
   private val psiFile: PsiFile,
+  private val textAttr: TextAttributes
 ) {
+
+  constructor(
+    project: Project,
+    editor: Editor,
+    psiFile: PsiFile,
+  ) : this(project, editor, psiFile, TextAttributesFactory.getNextTextAttr())
 
   fun highlight() {
     if (highlightCustomUsages()) {
@@ -34,7 +42,7 @@ class MultiHighlightHandler(
         return@withAlternativeResolveEnabled
       }
 
-      MultiHighlightTextHandler(project, editor, psiFile).highlight()
+      MultiHighlightTextHandler(project, editor, textAttr).highlight()
     }
   }
 
@@ -83,7 +91,6 @@ class MultiHighlightHandler(
     editor: Editor,
     textRanges: MutableList<TextRange>,
   ) {
-    val textAttr = TextAttributesFactory.getNextTextAttr()
     multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
 
     val highlightCount = textRanges.size

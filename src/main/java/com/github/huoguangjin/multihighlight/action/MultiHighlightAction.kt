@@ -42,7 +42,7 @@ class MultiHighlightAction : DumbAwareAction() {
           return@executeCommand
         }
 
-        MultiHighlightTextHandler(project, editor, psiFile).highlight()
+        MultiHighlightTextHandler(project, editor).highlight()
       } catch (ex: IndexNotReadyException) {
         DumbService.getInstance(project)
           .showDumbModeNotification("MultiHighlight requires indices and cannot be performed until they are built")

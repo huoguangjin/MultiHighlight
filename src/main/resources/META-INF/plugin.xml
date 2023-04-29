@@ -26,6 +26,14 @@
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta QUOTE"/>
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl QUOTE"/>
         </action>
+        <action id="MultiHighlightWithColor"
+            class="com.github.huoguangjin.multihighlight.action.MultiHighlightWithColorAction"
+            text="MultiHighlight: Toggle Highlight With Color"
+            description="MultiHighlight: toggle highlight with color">
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift QUOTE"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift QUOTE"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift QUOTE"/>
+        </action>
         <action id="MultiHighlight.ClearAction"
             class="com.github.huoguangjin.multihighlight.action.MultiHighlightClearAction"
             text="MultiHighlight: Clear Highlights in Current Editor"
