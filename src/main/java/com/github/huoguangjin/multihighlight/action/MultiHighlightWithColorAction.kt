@@ -1,7 +1,7 @@
 package com.github.huoguangjin.multihighlight.action
 
-import com.github.huoguangjin.multihighlight.config.MultiHighlightConfig
 import com.github.huoguangjin.multihighlight.config.NamedTextAttr
+import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
@@ -43,9 +43,11 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
         return@executeCommand
       }
 
-      val namedTextAttrs = MultiHighlightConfig.getInstance().namedTextAttrs
+      val namedTextAttrs = TextAttributesFactory.getTextAttrs()
       val colorList = namedTextAttrs.mapIndexed(::NamedTextAttrItem)
-      val listPopupStep = ColorListPopupStep(project, editor, "Highlight with color..", colorList)
+      val listPopupStep = ColorListPopupStep(project, editor, "Highlight with color..", colorList).apply {
+        defaultOptionIndex = TextAttributesFactory.getNextTextAttrIndex()
+      }
       JBPopupFactory.getInstance()
         .createListPopup(listPopupStep)
         .showInBestPositionFor(editor)
@@ -84,10 +86,13 @@ private class ColorListPopupStep(
 
         if (psiFile != null && !selectionModel.hasSelection()) {
           MultiHighlightHandler(project, editor, psiFile, textAttr).highlight()
-          return@Runnable
+        } else {
+          MultiHighlightTextHandler(project, editor, textAttr).highlight()
         }
 
-        MultiHighlightTextHandler(project, editor, textAttr).highlight()
+        if (defaultOptionIndex == TextAttributesFactory.getNextTextAttrIndex()) {
+          TextAttributesFactory.advanceTextAttrIndex()
+        }
       } catch (ex: IndexNotReadyException) {
         DumbService.getInstance(project)
           .showDumbModeNotification("MultiHighlight requires indices and cannot be performed until they are built")

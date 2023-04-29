@@ -11,7 +11,23 @@ object TextAttributesFactory {
 
   internal fun update() {
     namedTextAttrs = MultiHighlightConfig.getInstance().namedTextAttrs
-    index = 0
+    index %= namedTextAttrs.size
+  }
+
+  fun getTextAttrs(): List<NamedTextAttr> {
+    val textAttrs = namedTextAttrs
+    if (textAttrs.isEmpty()) {
+      return listOf(NamedTextAttr.IDE_DEFAULT)
+    }
+
+    return textAttrs
+  }
+
+  fun getNextTextAttrIndex(): Int = index
+
+  fun advanceTextAttrIndex(): Int {
+    index = (index + 1) % namedTextAttrs.size
+    return index
   }
 
   fun getNextTextAttr(): NamedTextAttr {
@@ -19,6 +35,9 @@ object TextAttributesFactory {
     if (textAttrs.isEmpty()) {
       return NamedTextAttr.IDE_DEFAULT
     }
-    return textAttrs[index++ % textAttrs.size]
+
+    return textAttrs[index].also {
+      advanceTextAttrIndex()
+    }
   }
 }
