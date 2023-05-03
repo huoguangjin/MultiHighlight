@@ -51,18 +51,14 @@ class MultiHighlightHandler(
 
     handler.featureId?.let(FeatureUsageTracker.getInstance()::triggerFeatureUsed)
 
-    val textRanges = thisLogger().runAndLogException {
-      HighlightUsagesHandlerHelper.findUsages(handler)
-    }
-    if (textRanges == null) {
-      // fallback to highlight by HighlightUsagesHandlerBase
-      handler.highlightUsages()
-      return true
+    thisLogger().runAndLogException {
+      HighlightUsagesHandlerHelper.findUsages(handler) { textRanges ->
+        val multiHighlightManager = MultiHighlightManager.getInstance()
+        val hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
+        highlightTextRanges(multiHighlightManager, hostEditor, textRanges)
+      }
     }
 
-    val multiHighlightManager = MultiHighlightManager.getInstance()
-    val hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
-    highlightTextRanges(multiHighlightManager, hostEditor, textRanges)
     return true
   }
 
@@ -89,7 +85,7 @@ class MultiHighlightHandler(
   fun highlightTextRanges(
     multiHighlightManager: MultiHighlightManager,
     editor: Editor,
-    textRanges: MutableList<TextRange>,
+    textRanges: List<TextRange>,
   ) {
     multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
 
