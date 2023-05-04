@@ -28,7 +28,7 @@
         </action>
         <action id="MultiHighlightWithColor"
             class="com.github.huoguangjin.multihighlight.action.MultiHighlightWithColorAction"
-            text="MultiHighlight: Toggle Highlight With Color"
+            text="MultiHighlight: Toggle Highlight with Color"
             description="MultiHighlight: toggle highlight with color">
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift QUOTE"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta shift QUOTE"/>
