@@ -22,11 +22,14 @@ object HighlightUsagesHandlerHelper {
    *
    * see [HighlightUsagesHandlerBase.highlightUsages]
    */
-  fun <T : PsiElement> findUsages(handler: HighlightUsagesHandlerBase<T>, usagesConsumer: (List<TextRange>) -> Unit) {
+  fun <T : PsiElement> findUsages(
+    handler: HighlightUsagesHandlerBase<T>,
+    usagesConsumer: (List<TextRange>, List<TextRange>) -> Unit
+  ) {
     val targets = handler.targets
     selectTargetsMethod.call(handler, targets, Consumer { selectedTargets: MutableList<T> ->
       handler.computeUsages(selectedTargets)
-      usagesConsumer(handler.readUsages + handler.writeUsages)
+      usagesConsumer(handler.readUsages, handler.writeUsages)
     })
   }
 }

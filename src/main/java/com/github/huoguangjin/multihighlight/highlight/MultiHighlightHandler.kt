@@ -52,10 +52,10 @@ class MultiHighlightHandler(
     handler.featureId?.let(FeatureUsageTracker.getInstance()::triggerFeatureUsed)
 
     thisLogger().runAndLogException {
-      HighlightUsagesHandlerHelper.findUsages(handler) { textRanges ->
+      HighlightUsagesHandlerHelper.findUsages(handler) { readRanges, writeRanges ->
         val multiHighlightManager = MultiHighlightManager.getInstance()
         val hostEditor = InjectedLanguageEditorUtil.getTopLevelEditor(editor)
-        highlightTextRanges(multiHighlightManager, hostEditor, textRanges)
+        highlightTextRanges(multiHighlightManager, hostEditor, readRanges.toSet(), writeRanges.toSet())
       }
     }
 
@@ -75,8 +75,8 @@ class MultiHighlightHandler(
 
     val multiHighlightManager = MultiHighlightManager.getInstance()
     for (target in allTargets) {
-      val textRanges = HighlightUsagesHelper.getUsageRanges(file, target)
-      highlightTextRanges(multiHighlightManager, hostEditor, textRanges)
+      val (readRanges, writeRanges) = HighlightUsagesHelper.getUsageRanges(file, target)
+      highlightTextRanges(multiHighlightManager, hostEditor, readRanges, writeRanges)
     }
 
     return true
@@ -85,13 +85,18 @@ class MultiHighlightHandler(
   fun highlightTextRanges(
     multiHighlightManager: MultiHighlightManager,
     editor: Editor,
-    textRanges: List<TextRange>,
+    readRanges: Collection<TextRange>,
+    writeRanges: Collection<TextRange>,
   ) {
+    val textRanges = readRanges + writeRanges
     multiHighlightManager.addHighlighters(editor, textAttr, textRanges)
 
     val highlightCount = textRanges.size
     WindowManager.getInstance().getStatusBar(project).info = if (highlightCount > 0) {
-      MessageFormat.format("{0} {0, choice, 1#usage|2#usages} highlighted", highlightCount)
+      MessageFormat.format(
+        "{0} {0, choice, 1#usage|2#usages} highlighted (read: {1} write: {2})",
+        highlightCount, readRanges.size, writeRanges.size
+      )
     } else {
       "No usages highlighted"
     }
