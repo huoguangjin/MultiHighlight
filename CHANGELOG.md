@@ -3,6 +3,12 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Highlight with specified color. [#32](https://github.com/huoguangjin/MultiHighlight/issues/32)
+- Show the number of read/write usages on status bar.
+
+### Fixed
+- Fix highlights on throw expression.
 
 ## [3.0.0] - 2022-06-12
 ### Fixed
