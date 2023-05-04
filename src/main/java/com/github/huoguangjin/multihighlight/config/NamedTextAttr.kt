@@ -3,7 +3,6 @@ package com.github.huoguangjin.multihighlight.config
 import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.markup.TextAttributes
-import com.intellij.util.castSafelyTo
 import org.jdom.Element
 
 class NamedTextAttr : TextAttributes {
@@ -28,7 +27,7 @@ class NamedTextAttr : TextAttributes {
   override fun clone(): NamedTextAttr = NamedTextAttr(name, this)
 
   override fun equals(other: Any?): Boolean {
-    val o = other.castSafelyTo<NamedTextAttr>() ?: return false
+    val o = other as? NamedTextAttr ?: return false
     return name == o.name && super.equals(o)
   }
 
