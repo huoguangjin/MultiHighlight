@@ -65,6 +65,7 @@ tasks {
     wrapper {
         val gradleVersion: String by project
         setGradleVersion(gradleVersion)
+        distributionType = Wrapper.DistributionType.ALL
     }
 
     patchPluginXml {
