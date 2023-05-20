@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.tasks.SetupDependenciesTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -8,6 +9,14 @@ plugins {
     id("org.jetbrains.intellij") version "1.13.3"
     id("org.jetbrains.changelog") version "2.0.0"
     id("org.jetbrains.qodana") version "0.1.13"
+}
+
+rootProject.ext {
+    set("ideClassesDir", provider {
+        val setupDependenciesTask = tasks.getByName<SetupDependenciesTask>("setupDependencies")
+        // ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.rider/riderRD/2022.2/736091cbc306fcadda7da9a67850c5fe7df1ab88/riderRD-2022.2
+        setupDependenciesTask.idea.get().classes
+    })
 }
 
 val pluginVersion: String by project
