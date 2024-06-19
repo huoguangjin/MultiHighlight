@@ -3,6 +3,7 @@ package com.github.huoguangjin.multihighlight.action
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.command.CommandProcessor
@@ -49,4 +50,6 @@ class MultiHighlightAction : DumbAwareAction() {
       }
     }, "MultiHighlight", null)
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.BGT
 }
