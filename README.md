@@ -68,7 +68,11 @@ Customize your highlight text style (bold/italic, foreground, background, stripe
 
 ## Build & Run
 
-+ JDK 11 is required, set `JAVA_HOME` environment variable, or set **Build, Execution, Deployment | Build Tools | Gradle | Gradle JVM** in IDEA settings.
++ JDK 17 is required, set `JAVA_HOME` environment variable, or set **Build, Execution, Deployment | Build Tools | Gradle | Gradle JVM** in IDEA settings.
+  + Java 21 is required when targeting 2024.2 and later only.
+  + Java 17 is required ([blog post](https://blog.jetbrains.com/platform/2022/08/intellij-project-migrates-to-java-17/)) when targeting 2022.2 and later only.
+  + Java 11 is required ([blog post](https://blog.jetbrains.com/platform/2020/09/intellij-project-migrates-to-java-11/)) when targeting 2020.3 and later only.
+  > [Build Number Ranges | IntelliJ Platform Plugin SDK](https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html#platformVersions)
 
 + To build MultiHighlight, clone and run `./gradlew buildPlugin`.
 
