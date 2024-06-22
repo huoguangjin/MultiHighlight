@@ -5,14 +5,13 @@ import com.github.huoguangjin.multihighlight.config.NamedTextAttr
 import com.intellij.icons.AllIcons
 import com.intellij.idea.ActionsBundle
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.options.ConfigurableUi
+import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.DoubleClickListener
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.ToolbarDecorator
-import com.intellij.ui.ToolbarDecorator.ElementActionButton
 import com.intellij.ui.table.TableView
 import java.awt.BorderLayout
 import java.awt.event.MouseEvent
@@ -62,13 +61,11 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
     val tableWithToolbar: JPanel = ToolbarDecorator.createDecorator(namedTextAttrTable)
       .setAddAction { doAdd() }
       .setEditAction { doEdit() }
-      .addExtraActions(object : ElementActionButton(
+      .addExtraAction(DumbAwareAction.create(
         ActionsBundle.message("action.EditorCopy.text"),
         AllIcons.Actions.Copy
       ) {
-        override fun actionPerformed(e: AnActionEvent) {
-          doCopy()
-        }
+        doCopy()
       })
       .createPanel()
 
