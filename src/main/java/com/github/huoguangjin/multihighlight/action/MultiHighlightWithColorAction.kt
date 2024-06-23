@@ -5,6 +5,8 @@ import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
+import com.github.huoguangjin.multihighlight.ui.MultiHighlightColorListPopup
+import com.intellij.find.FindModel
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -16,7 +18,6 @@ import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.IndexNotReadyException
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
@@ -49,13 +50,16 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
         return@executeCommand
       }
 
+      // create a new FindModel each time? or reuse FindModel in project scope?
+      val findModel = FindModel()
+
       val namedTextAttrs = TextAttributesFactory.getTextAttrs()
       val colorList = namedTextAttrs.mapIndexed(::NamedTextAttrItem)
-      val listPopupStep = ColorListPopupStep(project, editor, "Highlight with color..", colorList).apply {
+      val listPopupStep = ColorListPopupStep(project, editor, findModel, "Highlight with color..", colorList).apply {
         defaultOptionIndex = TextAttributesFactory.getNextTextAttrIndex()
       }
-      JBPopupFactory.getInstance()
-        .createListPopup(listPopupStep).also(::addKeyStrokeAction)
+
+      MultiHighlightColorListPopup(project, listPopupStep, findModel).also(::addKeyStrokeAction)
         .showInBestPositionFor(editor)
     }, "MultiHighlight", null)
   }
@@ -85,6 +89,7 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
 private class ColorListPopupStep(
   private val project: Project,
   private val editor: Editor,
+  private val findModel: FindModel,
   title: String?,
   colorList: List<NamedTextAttrItem>,
 ) : BaseListPopupStep<NamedTextAttrItem>(title, colorList) {
@@ -112,9 +117,11 @@ private class ColorListPopupStep(
         val selectionModel = editor.selectionModel
 
         if (psiFile != null && !selectionModel.hasSelection()) {
-          MultiHighlightHandler(project, editor, psiFile, textAttr).highlight()
+          MultiHighlightHandler(project, editor, psiFile, textAttr).highlight {
+            MultiHighlightTextHandler(project, editor, textAttr, findModel).highlight()
+          }
         } else {
-          MultiHighlightTextHandler(project, editor, textAttr).highlight()
+          MultiHighlightTextHandler(project, editor, textAttr, findModel).highlight()
         }
 
         if (defaultOptionIndex == TextAttributesFactory.getNextTextAttrIndex()) {

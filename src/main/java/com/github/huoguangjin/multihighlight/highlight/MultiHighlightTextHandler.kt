@@ -16,6 +16,7 @@ class MultiHighlightTextHandler(
   private val project: Project,
   private val editor: Editor,
   private val textAttr: TextAttributes,
+  private val findModel: FindModel = FindModel(),
 ) {
   constructor(
     project: Project,
@@ -67,10 +68,8 @@ class MultiHighlightTextHandler(
     val charSequence = editor.document.immutableCharSequence
     val maxOffset = charSequence.length
 
-    val findModel = FindModel().apply {
-      copyFrom(findManager.findInFileModel)
-      stringToFind = text
-    }
+    findModel.stringToFind = text
+
     val virtualFile = FileDocumentManager.getInstance().getFile(editor.document)
 
     var offset = 0

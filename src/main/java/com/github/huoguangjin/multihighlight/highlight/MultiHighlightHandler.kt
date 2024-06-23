@@ -34,7 +34,7 @@ class MultiHighlightHandler(
     psiFile: PsiFile,
   ) : this(project, editor, psiFile, TextAttributesFactory.getNextTextAttr())
 
-  fun highlight() {
+  fun highlight(noHighlightFallback: (() -> Unit)? = null) {
     if (highlightCustomUsages()) {
       return
     }
@@ -44,7 +44,7 @@ class MultiHighlightHandler(
         return@withAlternativeResolveEnabled
       }
 
-      MultiHighlightTextHandler(project, editor, textAttr).highlight()
+      noHighlightFallback?.invoke()
     }
   }
 

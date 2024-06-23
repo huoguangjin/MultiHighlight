@@ -39,7 +39,9 @@ class MultiHighlightAction : DumbAwareAction() {
         val selectionModel = editor.selectionModel
 
         if (psiFile != null && !selectionModel.hasSelection()) {
-          MultiHighlightHandler(project, editor, psiFile).highlight()
+          MultiHighlightHandler(project, editor, psiFile).highlight {
+            MultiHighlightTextHandler(project, editor).highlight()
+          }
           return@executeCommand
         }
 
