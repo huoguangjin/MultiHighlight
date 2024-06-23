@@ -3,8 +3,10 @@ package com.github.huoguangjin.multihighlight.highlight
 import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler
 import com.intellij.featureStatistics.FeatureUsageTracker
+import com.intellij.find.FindBundle
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.model.psi.impl.targetSymbols
+import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.diagnostic.runAndLogException
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.editor.Editor
@@ -75,7 +77,9 @@ class MultiHighlightHandler(
 
     val multiHighlightManager = MultiHighlightManager.getInstance()
     for (target in allTargets) {
-      val (readRanges, writeRanges) = HighlightUsagesHelper.getUsageRanges(file, target)
+      val (readRanges, writeRanges) = ActionUtil.underModalProgress(
+        project, FindBundle.message("progress.title.finding.usages")
+      ) { HighlightUsagesHelper.getUsageRanges(file, target) } ?: continue
       highlightTextRanges(multiHighlightManager, hostEditor, readRanges, writeRanges)
     }
 
