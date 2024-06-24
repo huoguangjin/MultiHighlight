@@ -6,27 +6,21 @@ import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
 import com.github.huoguangjin.multihighlight.ui.MultiHighlightColorListPopup
+import com.github.huoguangjin.multihighlight.ui.OnColorSelectListener
 import com.intellij.find.FindModel
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.IndexNotReadyException
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.ListPopup
-import com.intellij.openapi.ui.popup.PopupStep
-import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.ui.popup.WizardPopup
-import java.awt.Color
 import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
-import javax.swing.Icon
 
 class MultiHighlightWithColorAction : DumbAwareAction() {
 
@@ -53,13 +47,32 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
       // create a new FindModel each time? or reuse FindModel in project scope?
       val findModel = FindModel()
 
-      val namedTextAttrs = TextAttributesFactory.getTextAttrs()
-      val colorList = namedTextAttrs.mapIndexed(::NamedTextAttrItem)
-      val listPopupStep = ColorListPopupStep(project, editor, findModel, "Highlight with color..", colorList).apply {
-        defaultOptionIndex = TextAttributesFactory.getNextTextAttrIndex()
+      val listener = object : OnColorSelectListener {
+        override fun onSelect(index: Int, textAttr: NamedTextAttr) {
+          try {
+            val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document)
+            val selectionModel = editor.selectionModel
+
+            if (psiFile != null && !selectionModel.hasSelection()) {
+              MultiHighlightHandler(project, editor, psiFile, textAttr).highlight {
+                MultiHighlightTextHandler(project, editor, textAttr, findModel).highlight()
+              }
+            } else {
+              MultiHighlightTextHandler(project, editor, textAttr, findModel).highlight()
+            }
+
+            if (index == TextAttributesFactory.getNextTextAttrIndex()) {
+              TextAttributesFactory.advanceTextAttrIndex()
+            }
+          } catch (ex: IndexNotReadyException) {
+            DumbService.getInstance(project)
+              .showDumbModeNotification("MultiHighlight requires indices and cannot be performed until they are built")
+          }
+        }
       }
 
-      MultiHighlightColorListPopup(project, listPopupStep, findModel).also(::addKeyStrokeAction)
+      MultiHighlightColorListPopup.create(project, findModel, listener)
+        .also(::addKeyStrokeAction)
         .showInBestPositionFor(editor)
     }, "MultiHighlight", null)
   }
@@ -84,64 +97,4 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
       })
     }
   }
-}
-
-private class ColorListPopupStep(
-  private val project: Project,
-  private val editor: Editor,
-  private val findModel: FindModel,
-  title: String?,
-  colorList: List<NamedTextAttrItem>,
-) : BaseListPopupStep<NamedTextAttrItem>(title, colorList) {
-
-  private var finalRunnable: Runnable? = null
-
-  override fun isSpeedSearchEnabled() = true
-
-  override fun getForegroundFor(item: NamedTextAttrItem): Color? = item.textAttr.foregroundColor
-
-  override fun getBackgroundFor(item: NamedTextAttrItem): Color? = item.textAttr.backgroundColor
-
-  override fun getSelectedIconFor(value: NamedTextAttrItem): Icon = AllIcons.Actions.Execute
-
-  override fun onChosen(selectedValue: NamedTextAttrItem, finalChoice: Boolean): PopupStep<*>? {
-    if (!finalChoice) {
-      return super.onChosen(selectedValue, finalChoice)
-    }
-
-    finalRunnable = Runnable {
-      try {
-        val textAttr = selectedValue.textAttr
-
-        val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.document)
-        val selectionModel = editor.selectionModel
-
-        if (psiFile != null && !selectionModel.hasSelection()) {
-          MultiHighlightHandler(project, editor, psiFile, textAttr).highlight {
-            MultiHighlightTextHandler(project, editor, textAttr, findModel).highlight()
-          }
-        } else {
-          MultiHighlightTextHandler(project, editor, textAttr, findModel).highlight()
-        }
-
-        if (defaultOptionIndex == TextAttributesFactory.getNextTextAttrIndex()) {
-          TextAttributesFactory.advanceTextAttrIndex()
-        }
-      } catch (ex: IndexNotReadyException) {
-        DumbService.getInstance(project)
-          .showDumbModeNotification("MultiHighlight requires indices and cannot be performed until they are built")
-      }
-    }
-
-    return FINAL_CHOICE
-  }
-
-  override fun getFinalRunnable(): Runnable? = finalRunnable
-}
-
-private class NamedTextAttrItem(
-  val index: Int,
-  val textAttr: NamedTextAttr,
-) {
-  override fun toString() = "$index ${textAttr.name}"
 }
