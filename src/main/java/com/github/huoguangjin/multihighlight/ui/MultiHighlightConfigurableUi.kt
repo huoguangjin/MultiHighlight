@@ -7,13 +7,14 @@ import com.intellij.idea.ActionsBundle
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.options.ConfigurableUi
 import com.intellij.openapi.project.DumbAwareAction
+import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.DoubleClickListener
-import com.intellij.ui.IdeBorderFactory
 import com.intellij.ui.JBSplitter
 import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.dsl.builder.Align
+import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.table.TableView
-import java.awt.BorderLayout
 import java.awt.event.MouseEvent
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -33,6 +34,33 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
   }
 
   private val previewPanel: PreviewPanel = ColorPreviewPanel()
+
+  private val rootPanel: DialogPanel = panel {
+    val tableWithToolbar: JPanel = ToolbarDecorator.createDecorator(namedTextAttrTable)
+      .setAddAction { doAdd() }
+      .setEditAction { doEdit() }
+      .addExtraAction(DumbAwareAction.create(
+        ActionsBundle.message("action.EditorCopy.text"),
+        AllIcons.Actions.Copy
+      ) {
+        doCopy()
+      })
+      .createPanel()
+
+    val chooserAndPreviewPanel: JPanel = JBSplitter(true, 0.3f).apply {
+      firstComponent = chooserPanel.panel
+      secondComponent = previewPanel.panel
+    }
+
+    val mainPanel: JPanel = JBSplitter(false, 0.3f).apply {
+      firstComponent = tableWithToolbar
+      secondComponent = chooserAndPreviewPanel
+    }
+
+    row {
+      cell(mainPanel).align(Align.FILL)
+    }.resizableRow()
+  }
 
   init {
     model.addTableModelListener {
@@ -57,33 +85,7 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
     }
   }
 
-  override fun getComponent(): JComponent {
-    val tableWithToolbar: JPanel = ToolbarDecorator.createDecorator(namedTextAttrTable)
-      .setAddAction { doAdd() }
-      .setEditAction { doEdit() }
-      .addExtraAction(DumbAwareAction.create(
-        ActionsBundle.message("action.EditorCopy.text"),
-        AllIcons.Actions.Copy
-      ) {
-        doCopy()
-      })
-      .createPanel()
-
-    val chooserAndPreviewPanel: JPanel = JBSplitter(true, 0.3f).apply {
-      firstComponent = chooserPanel.panel
-      secondComponent = previewPanel.panel
-    }
-
-    val mainPanel: JPanel = JBSplitter(false, 0.3f).apply {
-      firstComponent = tableWithToolbar
-      secondComponent = chooserAndPreviewPanel
-    }
-
-    return JPanel(BorderLayout(0, 10)).apply {
-      add(mainPanel, BorderLayout.CENTER)
-      border = IdeBorderFactory.createTitledBorder("MultiHighlight Colors", false)
-    }
-  }
+  override fun getComponent(): JComponent = rootPanel
 
   private fun updateChooserPanel() {
     val selected = namedTextAttrTable.selectedObject
