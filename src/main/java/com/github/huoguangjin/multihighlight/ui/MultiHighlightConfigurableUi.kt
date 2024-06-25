@@ -9,16 +9,13 @@ import com.intellij.openapi.options.ConfigurableUi
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.ui.Messages
-import com.intellij.ui.DoubleClickListener
-import com.intellij.ui.JBSplitter
-import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.*
 import com.intellij.ui.dsl.builder.Align
+import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import com.intellij.ui.table.TableView
 import java.awt.event.MouseEvent
-import javax.swing.JComponent
-import javax.swing.JPanel
-import javax.swing.ListSelectionModel
+import javax.swing.*
 
 class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Disposable {
 
@@ -57,9 +54,29 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
       secondComponent = chooserAndPreviewPanel
     }
 
+    val config = MultiHighlightConfig.getInstance()
+
     row {
       cell(mainPanel).align(Align.FILL)
+        .onIsModified {
+          model.items != config.namedTextAttrs
+        }
+        .onApply {
+          config.updateTextAttrs(model.items.map(NamedTextAttr::clone))
+        }
+        .onReset {
+          model.items = config.namedTextAttrs.map(NamedTextAttr::clone)
+        }
     }.resizableRow()
+
+    group(indent = false) {
+      row {
+        contextHelp("MultiHighlight will try to highlight the plain text if no identifiers are found")
+          .label("Highlight plain text:")
+        checkBox("Match case").bindSelected(config::matchCase)
+        checkBox("Match words").bindSelected(config::matchWord)
+      }
+    }
   }
 
   init {
@@ -134,24 +151,15 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
   }
 
   override fun isModified(settings: MultiHighlightConfig): Boolean {
-    val current = model.items
-    val origin = settings.namedTextAttrs
-    return current != origin
+    return rootPanel.isModified()
   }
 
   override fun apply(settings: MultiHighlightConfig) {
-    val lastSelectedRow = namedTextAttrTable.selectedRow
-
-    val textAttrs = model.items.map(NamedTextAttr::clone)
-    settings.updateTextAttrs(textAttrs)
-
-    if (lastSelectedRow in 0..namedTextAttrTable.rowCount) {
-      namedTextAttrTable.setRowSelectionInterval(lastSelectedRow, lastSelectedRow)
-    }
+    rootPanel.apply()
   }
 
   override fun reset(settings: MultiHighlightConfig) {
-    model.items = settings.namedTextAttrs.map(NamedTextAttr::clone)
+    rootPanel.reset()
   }
 
   override fun dispose() {
