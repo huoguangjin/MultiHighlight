@@ -1,5 +1,6 @@
 package com.github.huoguangjin.multihighlight.highlight
 
+import com.github.huoguangjin.multihighlight.config.MultiHighlightConfig
 import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.intellij.find.FindManager
 import com.intellij.find.FindModel
@@ -16,7 +17,12 @@ class MultiHighlightTextHandler(
   private val project: Project,
   private val editor: Editor,
   private val textAttr: TextAttributes,
-  private val findModel: FindModel = FindModel(),
+  private val findModel: FindModel = FindModel().apply {
+    MultiHighlightConfig.getInstance().run {
+      isCaseSensitive = matchCase
+      isWholeWordsOnly = matchWord
+    }
+  },
 ) {
   constructor(
     project: Project,

@@ -1,5 +1,6 @@
 package com.github.huoguangjin.multihighlight.action
 
+import com.github.huoguangjin.multihighlight.config.MultiHighlightConfig
 import com.github.huoguangjin.multihighlight.config.NamedTextAttr
 import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightHandler
@@ -44,8 +45,12 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
         return@executeCommand
       }
 
-      // create a new FindModel each time? or reuse FindModel in project scope?
-      val findModel = FindModel()
+      val findModel = FindModel().apply {
+        MultiHighlightConfig.getInstance().run {
+          isCaseSensitive = matchCase
+          isWholeWordsOnly = matchWord
+        }
+      }
 
       val listener = object : OnColorSelectListener {
         override fun onSelect(index: Int, textAttr: NamedTextAttr) {
