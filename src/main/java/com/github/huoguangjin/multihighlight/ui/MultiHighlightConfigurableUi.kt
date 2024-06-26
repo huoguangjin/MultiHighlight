@@ -5,6 +5,8 @@ import com.github.huoguangjin.multihighlight.config.NamedTextAttr
 import com.intellij.icons.AllIcons
 import com.intellij.idea.ActionsBundle
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.options.ConfigurableUi
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.DialogPanel
@@ -23,7 +25,7 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
   private val namedTextAttrTable = TableView(model).apply {
     isStriped = true
     setShowColumns(false)
-    setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
+    setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION)
   }
 
   private val chooserPanel: ChooserPanel = ColorChooserPanel().apply {
@@ -33,16 +35,21 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
   private val previewPanel: PreviewPanel = ColorPreviewPanel()
 
   private val rootPanel: DialogPanel = panel {
+    val copyAction = DumbAwareAction.create(
+      ActionsBundle.message("action.EditorCopy.text"),
+      AllIcons.Actions.Copy
+    ) {
+      doCopy()
+    }
+
     val tableWithToolbar: JPanel = ToolbarDecorator.createDecorator(namedTextAttrTable)
       .setAddAction { doAdd() }
       .setEditAction { doEdit() }
-      .addExtraAction(DumbAwareAction.create(
-        ActionsBundle.message("action.EditorCopy.text"),
-        AllIcons.Actions.Copy
-      ) {
-        doCopy()
-      })
+      .addExtraAction(copyAction)
       .createPanel()
+
+    val ideCopyAction = ActionManager.getInstance().getAction(IdeActions.ACTION_COPY)
+    copyAction.registerCustomShortcutSet(ideCopyAction.shortcutSet, tableWithToolbar)
 
     val chooserAndPreviewPanel: JPanel = JBSplitter(true, 0.3f).apply {
       firstComponent = chooserPanel.panel
@@ -139,6 +146,18 @@ class MultiHighlightConfigurableUi : ConfigurableUi<MultiHighlightConfig>, Dispo
 
   private fun doCopy() {
     val selected = namedTextAttrTable.selectedObject ?: return
+
+    val selectRows = namedTextAttrTable.selectedRows
+    if (selectRows.size > 1) {
+      selectRows.forEach {
+        val row = namedTextAttrTable.getRow(it)
+        model.insertRow(it + selectRows.size, NamedTextAttr("${row.name} copy", row))
+      }
+      val rowIndex = selectRows.last() + 1
+      namedTextAttrTable.setRowSelectionInterval(rowIndex, rowIndex + selectRows.size - 1)
+      return
+    }
+
     val name = askForColorName("${selected.name} copy") ?: return
 
     val newRow = namedTextAttrTable.selectedRow + 1
