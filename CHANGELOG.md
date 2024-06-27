@@ -4,6 +4,12 @@
 
 ## Unreleased
 
+### Added
+- Add options for case-sensitive and whole word matching to highlight plain text. [#37](https://github.com/huoguangjin/MultiHighlight/issues/37) [#36](https://github.com/huoguangjin/MultiHighlight/issues/36) [#35](https://github.com/huoguangjin/MultiHighlight/issues/35)
+
+### Fixed
+- Fix compatibility issue with IDE 2024.1. [#42](https://github.com/huoguangjin/MultiHighlight/issues/42) [#41](https://github.com/huoguangjin/MultiHighlight/issues/41)
+
 ## 3.1.0 - 2023-05-05
 
 ### Added
