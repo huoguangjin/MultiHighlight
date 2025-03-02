@@ -2,18 +2,19 @@ package com.github.huoguangjin.multihighlight.config
 
 object TextAttributesFactory {
 
-  private lateinit var namedTextAttrs: List<NamedTextAttr>
-  private var index = 0
-
-  init {
-    val textAttrs = MultiHighlightConfig.getInstance().namedTextAttrs
-    update(textAttrs)
+  private val namedTextAttrs: MutableList<NamedTextAttr> by lazy {
+    MultiHighlightConfig.getInstance().namedTextAttrs.ifEmpty {
+      listOf(NamedTextAttr.IDE_DEFAULT)
+    }.toMutableList()
   }
 
+  private var index = 0
+
   internal fun update(textAttrs: List<NamedTextAttr>) {
-    namedTextAttrs = textAttrs.ifEmpty {
+    namedTextAttrs.clear()
+    namedTextAttrs.addAll(textAttrs.ifEmpty {
       listOf(NamedTextAttr.IDE_DEFAULT)
-    }
+    })
 
     index %= namedTextAttrs.size
   }
