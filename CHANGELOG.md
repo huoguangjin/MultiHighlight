@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+### Fixed
+
+- Fix compatibility issue with IDE 2024.2. [#46](https://github.com/huoguangjin/MultiHighlight/issues/46)
+- Resolve color confusion in the New UI. [#47](https://github.com/huoguangjin/MultiHighlight/issues/47)
+
 ## 3.2.0 - 2024-06-28
 
 ### Added
