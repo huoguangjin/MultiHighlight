@@ -13,12 +13,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.ListPopupStep
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
+import com.intellij.ui.NewUI
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.popup.list.ListPopupImpl
+import com.intellij.ui.popup.list.PopupListElementRenderer
 import java.awt.Color
-import javax.swing.Icon
-import javax.swing.JComponent
-import javax.swing.JPanel
+import java.awt.Component
+import javax.swing.*
 
 class MultiHighlightColorListPopup(
   project: Project,
@@ -36,6 +37,33 @@ class MultiHighlightColorListPopup(
       val listPopupStep = ColorListPopupStep("Highlight with color", colorList, listener)
       listPopupStep.defaultOptionIndex = TextAttributesFactory.getNextTextAttrIndex()
       return MultiHighlightColorListPopup(project, listPopupStep, findModel)
+    }
+  }
+
+  override fun getListElementRenderer(): ListCellRenderer<*> {
+    if (!NewUI.isEnabled()) {
+      return super.getListElementRenderer()
+    }
+
+    return object : PopupListElementRenderer<Any?>(this) {
+      override fun getListCellRendererComponent(
+        list: JList<out Any?>?,
+        value: Any?,
+        index: Int,
+        isSelected: Boolean,
+        cellHasFocus: Boolean
+      ): Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus).apply {
+        itemComponent.isOpaque = true
+      }
+
+      override fun customizeComponent(list: JList<out Any?>?, value: Any?, isSelected: Boolean) {
+        super.customizeComponent(list, value, isSelected)
+        // see [com.intellij.ui.popup.list.PopupListElementRenderer.createItemComponent]
+        // hierarchy: SelectablePanel > JPanel > JPanel > ErrorLabel
+        (listStep as BaseListPopupStep).getBackgroundFor(value)?.let {
+          itemComponent.background = it
+        }
+      }
     }
   }
 
@@ -107,7 +135,8 @@ private class ColorListPopupStep(
 
   override fun getBackgroundFor(item: NamedTextAttrItem): Color? = item.textAttr.backgroundColor
 
-  override fun getSelectedIconFor(value: NamedTextAttrItem): Icon = AllIcons.Actions.Execute
+  override fun getSelectedIconFor(value: NamedTextAttrItem): Icon? =
+    AllIcons.Actions.Execute.takeIf { !NewUI.isEnabled() }
 
   override fun onChosen(selectedValue: NamedTextAttrItem, finalChoice: Boolean): PopupStep<*>? {
     if (!finalChoice) {
