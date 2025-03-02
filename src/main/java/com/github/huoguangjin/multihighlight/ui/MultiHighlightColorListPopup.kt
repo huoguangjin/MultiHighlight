@@ -5,6 +5,7 @@ import com.github.huoguangjin.multihighlight.config.TextAttributesFactory
 import com.intellij.find.FindBundle
 import com.intellij.find.FindModel
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.actionSystem.ex.CheckboxAction
@@ -42,6 +43,7 @@ class MultiHighlightColorListPopup(
     val toggleMatchCaseAction = object : CheckboxAction(
       FindBundle.message("find.case.sensitive"), null, AllIcons.Actions.MatchCase,
     ) {
+      override fun getActionUpdateThread() = ActionUpdateThread.EDT
       override fun isSelected(e: AnActionEvent): Boolean = findModel.isCaseSensitive
       override fun setSelected(e: AnActionEvent, selected: Boolean) {
         findModel.isCaseSensitive = selected
@@ -51,6 +53,7 @@ class MultiHighlightColorListPopup(
     val toggleWholeWordsOnlyAction = object : CheckboxAction(
       FindBundle.message("find.whole.words"), null, AllIcons.Actions.Words
     ) {
+      override fun getActionUpdateThread() = ActionUpdateThread.EDT
       override fun isSelected(e: AnActionEvent): Boolean = findModel.isWholeWordsOnly
       override fun setSelected(e: AnActionEvent, selected: Boolean) {
         findModel.isWholeWordsOnly = selected

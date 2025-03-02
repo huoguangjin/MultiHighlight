@@ -1,6 +1,7 @@
 package com.github.huoguangjin.multihighlight.action
 
 import com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.project.DumbAwareAction
@@ -22,4 +23,6 @@ class MultiHighlightClearAction : DumbAwareAction() {
     val multiHighlightManager = MultiHighlightManager.getInstance()
     multiHighlightManager.removeAllHighlighters(editor)
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.BGT
 }

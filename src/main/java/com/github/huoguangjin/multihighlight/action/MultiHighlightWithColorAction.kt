@@ -9,6 +9,7 @@ import com.github.huoguangjin.multihighlight.highlight.MultiHighlightTextHandler
 import com.github.huoguangjin.multihighlight.ui.MultiHighlightColorListPopup
 import com.github.huoguangjin.multihighlight.ui.OnColorSelectListener
 import com.intellij.find.FindModel
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.KeyboardShortcut
@@ -102,4 +103,6 @@ class MultiHighlightWithColorAction : DumbAwareAction() {
       })
     }
   }
+
+  override fun getActionUpdateThread() = ActionUpdateThread.BGT
 }
