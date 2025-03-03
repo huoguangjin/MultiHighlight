@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## 3.2.1 - 2025-03-03
+
 ### Fixed
 
 - Fix compatibility issue with IDE 2024.2. [#46](https://github.com/huoguangjin/MultiHighlight/issues/46)
