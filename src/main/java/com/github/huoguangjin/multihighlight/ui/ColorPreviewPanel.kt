@@ -51,7 +51,7 @@ class ColorPreviewPanel : PreviewPanel {
   }
 
   private fun highlightLine(index: Int, textAttr: NamedTextAttr) {
-    UIUtil.invokeAndWaitIfNeeded(Runnable {
+    UIUtil.invokeAndWaitIfNeeded {
       try {
         val markupModel = editor.markupModel
         val doc = markupModel.document
@@ -73,7 +73,7 @@ class ColorPreviewPanel : PreviewPanel {
       } catch (e: Exception) {
         throw RuntimeException(e)
       }
-    })
+    }
   }
 
   override fun blinkSelectedColor(textAttr: NamedTextAttr) {

@@ -23,8 +23,8 @@ class MultiHighlightAction : DumbAwareAction() {
   }
 
   override fun actionPerformed(e: AnActionEvent) {
-    val project = e.getRequiredData(CommonDataKeys.PROJECT)
-    val editor = e.getRequiredData(CommonDataKeys.EDITOR)
+    val project = e.getData(CommonDataKeys.PROJECT) ?: return
+    val editor = e.getData(CommonDataKeys.EDITOR) ?: return
 
     CommandProcessor.getInstance().executeCommand(project, {
       try {
