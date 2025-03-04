@@ -1,12 +1,13 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 fun environment(key: String) = providers.environmentVariable(key)
 
 plugins {
     id("java")
     alias(libs.plugins.kotlin)
-    alias(libs.plugins.gradleIntelliJPlugin)
+    alias(libs.plugins.intelliJPlatform)
     alias(libs.plugins.changelog)
     alias(libs.plugins.qodana)
     alias(libs.plugins.kover)
@@ -14,16 +15,17 @@ plugins {
 
 val pluginVersion: String by project
 
-val pluginSinceBuild: String by project
-val pluginUntilBuild: String by project
-
-val platformVersion: String by project
-
 val javaVersion: String by project
+
+version = pluginVersion
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://jitpack.io") }
+
+    // IntelliJ Platform Gradle Plugin Repositories Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-repositories-extension.html
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
 
 // Set the JVM language level used to build the project.
@@ -31,38 +33,39 @@ kotlin {
     jvmToolchain(javaVersion.toInt())
 }
 
-// https://github.com/JetBrains/gradle-intellij-plugin
-intellij {
-    pluginName = project.name
-    version = platformVersion
+// Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
+dependencies {
+    testImplementation(libs.junit)
 
-    // https://github.com/JetBrains/gradle-intellij-plugin#building-properties
-    updateSinceUntilBuild = false
+    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    intellijPlatform {
+        create(providers.gradleProperty("platformType"), providers.gradleProperty("platformVersion"))
 
-    // https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html
-    // https://www.jetbrains.com/intellij-repository/releases/
-    // localPath = "/Applications/Android Studio.app"
-}
+        // https://plugins.jetbrains.com/docs/intellij/android-studio-releases-list.html
+        // https://www.jetbrains.com/intellij-repository/releases/
+        // local("/Applications/Android Studio.app")
 
-// https://github.com/JetBrains/gradle-changelog-plugin
-changelog {
-    version = pluginVersion
-    groups.empty()
-}
+        // Plugin Dependencies. Uses `platformBundledPlugins` property from the gradle.properties file for bundled IntelliJ Platform plugins.
+        bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',') })
 
-tasks {
-    wrapper {
-        val gradleVersion: String by project
-        setGradleVersion(gradleVersion)
-        distributionType = Wrapper.DistributionType.ALL
+        // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
+        plugins(providers.gradleProperty("platformPlugins").map { it.split(',') })
+
+        instrumentationTools()
+        pluginVerifier()
+        zipSigner()
+        testFramework(TestFrameworkType.Platform)
     }
+}
 
-    patchPluginXml {
+// Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
+intellijPlatform {
+    pluginConfiguration {
+        name = project.name
         version = pluginVersion
-        sinceBuild = pluginSinceBuild
 
         // Extract the <!-- Plugin description --> section from README.md and provide for the plugin's manifest
-        pluginDescription = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
+        description = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
             val start = "<!-- Plugin description -->"
             val end = "<!-- Plugin description end -->"
 
@@ -83,29 +86,80 @@ tasks {
                 Changelog.OutputType.HTML,
             )
         }
+
+        ideaVersion {
+            sinceBuild = providers.gradleProperty("pluginSinceBuild")
+            untilBuild = providers.gradleProperty("pluginUntilBuild")
+        }
     }
 
-    // Configure UI tests plugin
-    // Read more: https://github.com/JetBrains/intellij-ui-test-robot
-    runIdeForUiTests {
-        systemProperty("robot-server.port", "8082")
-        systemProperty("ide.mac.message.dialogs.as.sheets", "false")
-        systemProperty("jb.privacy.policy.text", "<!--999.999-->")
-        systemProperty("jb.consents.confirmation.enabled", "false")
+    signing {
+        certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
+        privateKey = providers.environmentVariable("PRIVATE_KEY")
+        password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
     }
 
-    signPlugin {
-        certificateChain = environment("CERTIFICATE_CHAIN")
-        privateKey = environment("PRIVATE_KEY")
-        password = environment("PRIVATE_KEY_PASSWORD")
-    }
-
-    publishPlugin {
-        dependsOn("patchChangelog")
-        token = environment("PUBLISH_TOKEN")
+    publishing {
+        token = providers.environmentVariable("PUBLISH_TOKEN")
         // The pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels = listOf(pluginVersion.substringAfter('-', "").substringBefore('.').ifEmpty { "default" })
+    }
+
+    pluginVerification {
+        ides {
+            recommended()
+        }
+    }
+}
+
+// https://github.com/JetBrains/gradle-changelog-plugin
+changelog {
+    version = pluginVersion
+    groups.empty()
+    repositoryUrl = providers.gradleProperty("pluginRepositoryUrl")
+}
+
+// Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
+kover {
+    reports {
+        total {
+            xml {
+                onCheck = true
+            }
+        }
+    }
+}
+
+tasks {
+    wrapper {
+        gradleVersion = providers.gradleProperty("gradleVersion").get()
+        distributionType = Wrapper.DistributionType.ALL
+    }
+
+    publishPlugin {
+        dependsOn(patchChangelog)
+    }
+}
+
+intellijPlatformTesting {
+    runIde {
+        register("runIdeForUiTests") {
+            task {
+                jvmArgumentProviders += CommandLineArgumentProvider {
+                    listOf(
+                        "-Drobot-server.port=8082",
+                        "-Dide.mac.message.dialogs.as.sheets=false",
+                        "-Djb.privacy.policy.text=<!--999.999-->",
+                        "-Djb.consents.confirmation.enabled=false",
+                    )
+                }
+            }
+
+            plugins {
+                robotServerPlugin()
+            }
+        }
     }
 }
