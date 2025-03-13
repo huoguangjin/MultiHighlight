@@ -10,7 +10,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.github.huoguangjin.multihighlight.config.MultiHighlightConfig"/>
-        <applicationConfigurable instance="com.github.huoguangjin.multihighlight.ui.MultiHighlightConfigurable"/>
+        <applicationConfigurable id="MultiHighlight"
+                                 displayName="MultiHighlight"
+                                 instance="com.github.huoguangjin.multihighlight.ui.MultiHighlightConfigurable"/>
 
         <applicationService serviceImplementation="com.github.huoguangjin.multihighlight.highlight.MultiHighlightManager"/>
 
